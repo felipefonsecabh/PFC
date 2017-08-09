@@ -1,3 +1,30 @@
 .logo-ufmg{
     width: 15%;
 }
+
+.display-content{
+    /*width: 200px;
+    height: 100px;*/
+    background-color: #CDCDCD;
+    /*margin: 10px;*/
+    border: solid 1px white;
+
+}
+
+.display-desc{
+	color: #333333;
+	font-size:22px;
+	font-family: "SEGOE UI";
+}
+
+.display-value{
+	color: #333333;
+	font-size: 30px;
+	font-family: "SEGOE UI";
+}
+
+.display-unit{
+	color: #6c6c6c;
+	font-size: 20px;
+	font-family: "SEGOE UI";
+}

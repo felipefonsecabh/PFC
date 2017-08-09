@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+    <div class="row">
+        {% for dp in dp_col %}
+            <div class='col-md-6'>
+                <div class="display-content">
+                    <div class="display-data">
+                        <h3 class="text-center display-desc">{{dp.name}}
+                             <span>:</span> <span class="text-center display-value">{{dp.Value}}</span><span class='display-unit'>  {{dp.UE}}</span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <!--colocar alguma coisa aqui, caso não tenha nada no for-->
+        {% endfor %}
+    </div>
+
+    <div class="row">
+        
+    </div>
+
+{% endblock content %}

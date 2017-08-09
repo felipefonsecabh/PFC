@@ -23,12 +23,12 @@
                         <span class='icon-bar'></span>
                     </button>
                     <!--<a href="#" class="navbar-brand"><img src="{% static "img/ufmglogo.png" %}" class="logo-ufmg img-responsive"</a>-->
-                    <a href="#" class="navbar-brand">Trocador de Calor - DEQ UFMG</a>
+                    <a href="{% url 'core:home' %}" class="navbar-brand">Trocador de Calor - DEQ UFMG</a>
                 </div>
 
                 <div class="collapse navbar-collapse" id="barra-nav">
                     <ul class=" nav navbar-nav navbar-right">
-                        <li><a href="#">Operação</a></li>
+                        <li><a href="{% url 'op:main' %}">Operação</a></li>
                         <li><a href="#">Gráficos</a></li>
                     </ul>
                 </div>
@@ -40,7 +40,12 @@
         </div>
 
         <footer>
-            <center><p>Powered By - Felipe Fonseca</p></center>
+            <div class="row">
+                <div class="col-md-12">
+                     <center><p>Powered By - Felipe Fonseca</p></center>
+                </div>
+
+            </div>
         </footer>
     <script src="{% static "js/jquery-3.2.1.min.js" %}"></script>
     <script src="{% static "bootstrap-3.3.7-dist/js/bootstrap.min.js" %}"></script>
