@@ -5,11 +5,11 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="PFC Felipe Fonseca - WebSite">
+        
+        {% block css %}{% endblock %}
         <link rel="stylesheet" href="{% static "bootstrap-3.3.7-dist/css/bootstrap.min.css" %}">
         <link rel="stylesheet" href="{% static "css/personal-style.css" %}">
-        <link rel="stylesheet" href="{% static "css/bootstrap-toggle.min.css" %}">
-        <link rel="stylesheet" href="{% static "css/css-circular-prog-bar.css" %}">
-        <link rel="stylesheet" href="{% static "css/bootstrap-slider.min.css" %}">
+
         <title>Trocador de Calor</title>
     </head>
     <body>
@@ -50,9 +50,9 @@
 
             </div>
         </footer>
+    
     <script src="{% static "js/jquery-3.2.1.min.js" %}"></script>
     <script src="{% static "bootstrap-3.3.7-dist/js/bootstrap.min.js" %}"></script>
-    <script src="{% static "js/bootstrap-toggle.min.js" %}"></script>
-    <script src="{% static "js/bootstrap-slider.min.js" %}"></script>
+    {% block js %}{% endblock %}
     </body>
 </html>

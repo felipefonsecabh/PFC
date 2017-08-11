@@ -2,6 +2,13 @@
 
 {% load static %}
 
+<!--arquivos css necessários para abertura da página-->
+{% block css %}
+    <link rel="stylesheet" href="{% static "css/bootstrap-toggle.min.css" %}">
+    <link rel="stylesheet" href="{% static "css/css-circular-prog-bar.css" %}">
+    <link rel="stylesheet" href="{% static "css/bootstrap-slider.min.css" %}">
+{% endblock css %}
+
 {% block content %}
 
     <div class="container">
@@ -92,7 +99,7 @@
         <!-- status booleanos -->
         <div class="row">
 
-            <div class="col-md-6 grp-control" >
+            <div class="col-md-6 col-sm-6 grp-control" >
                 <div class="panel panel-primary">
                     <div class="panel-heading">
                         <h3 class="panel-title text-center">Bomba</h3>
@@ -102,15 +109,15 @@
                         <center>
                             <!--ideia do toggle abortada por enquanto-->
                             <!--<input type="checkbox" checked data-toggle="toggle">-->
-                            <h1><span class="label label-off text-center">ON</span><h1>
+                            <h1><span class="label label-off text-center">OFF</span><h1>
 
                             <!--comando-->
                             <button class="btn btn-primary">Ligar</button>
                             <button class="btn btn-primary">Desligar</button>
                                 
                             <!--progress bar-->
-                            <div class="progress-circle p50">
-                                <span>50%</span>
+                            <div class="progress-circle {%if reg.getintspeed > 50 %} over50 {% endif %} p{{reg.getintspeed}}">
+                                <span>{{reg.PumpSpeed}}%</span>
                                 <div class="left-half-clipper">
                                     <div class="first50-bar"></div>
                                     <div class="value-bar"></div>
@@ -119,14 +126,14 @@
 
                             <!--slider-->
                             <div>
-                                <input id="sp_pumpspeed" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="0.2"/>
+                                <input id="sp_pumpspeed" type="text" data-provide="slider" data-slider-min="0" data-slider-max="100" data-slider-step="0.5"/>
                             </div>
                         </center>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-6 grp-control" >
+            <div class="col-md-6 col-sm-6 grp-control" >
                 <div class="panel panel-custom">
                     <div class="panel-heading">
                         <h3 class="panel-title text-center">Aquecedor</h3>
@@ -136,25 +143,26 @@
                         <center>
                             <!--ideia do toggle abortada por enquanto-->
                             <!--<input type="checkbox" checked data-toggle="toggle">-->
-                            <h1><span class="label label-off text-center">ON</span><h1>
+                            <h1><span class="label label-on text-center">ON</span><h1>
 
                             <!--comando-->
                             <button class="btn btn-primary">Ligar</button>
                             <button class="btn btn-primary">Desligar</button>
                                 
-                            <!--progress bar-->
-                            <div class="progress-circle p50">
-                                <span>50%</span>
+                            <!--progress bar (1ª lib) -->
+                            <div class="progress-circle {%if reg.getintspeed > 50 %} over50 {% endif %} p{{reg.getintspeed}}" >
+                                <span>{{reg.PumpSpeed}}%</span>
                                 <div class="left-half-clipper">
                                     <div class="first50-bar"></div>
-                                    <div class="value-bar"></div>
+                                    <div class="value-bar circle-color"></div>
                                 </div>
-                            </div>
+                            </div>                     
 
                             <!--slider-->
                             <div>
-                                <input id="sp_pumpspeed" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="0.2"/>
+                                <input id="sp_heater" type="text" data-provide="slider" data-slider-min="0" data-slider-max="100" data-slider-step="1"/>
                             </div>
+
                         </center>
                     </div>
                 </div>
@@ -164,3 +172,10 @@
     </div>
 
 {% endblock content %}
+
+<!--arquivos java script necessários para a página-->
+{% block js %}
+    <script src="{% static "js/operation.js" %}"></script>
+    <script src="{% static "js/bootstrap-toggle.min.js" %}"></script>
+    <script src="{% static "js/bootstrap-slider.min.js" %}"></script>
+{% endblock js %}

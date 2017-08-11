@@ -71,6 +71,10 @@
 }
 .progress-circle:not(.over50) .first50-bar{ display: none; }
 
+.value-bar .circle-color {
+  border: 0.45em solid #9C693B;
+}
+
 
 /* Progress bar rotation position */
 .progress-circle.p0 .value-bar { display: none; }

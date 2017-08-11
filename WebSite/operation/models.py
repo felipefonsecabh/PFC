@@ -35,3 +35,6 @@ class Registers(models.Model):
         verbose_name_plural = 'Registers'
         ordering =['TimeStamp']
 
+    def getintspeed(self):
+        return int(self.PumpSpeed)
+
