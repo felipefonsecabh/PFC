@@ -4,24 +4,163 @@
 
 {% block content %}
 
-    <div class="row">
-        {% for dp in dp_col %}
+    <div class="container">
+        <!--displays-->
+        <div class="row grp-displays">
+
+            <!--tentativa dinamica 
+
+                {% for dp in dp_col %}
+                    <div class='col-md-6'>
+                        <div class="display-content">
+                            <div class="display-data">
+                                <h3 class="text-center display-desc">{{dp.name}}
+                                    <span>:</span> <span class="text-center display-value">{{dp.Value}}</span><span class='display-unit'>  {{dp.UE}}</span>
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    #colocar alguma coisa aqui, caso não tenha nada no for
+                {% endfor %}
+
+            fim de tentativa -->
+
             <div class='col-md-6'>
                 <div class="display-content">
                     <div class="display-data">
-                        <h3 class="text-center display-desc">{{dp.name}}
-                             <span>:</span> <span class="text-center display-value">{{dp.Value}}</span><span class='display-unit'>  {{dp.UE}}</span>
+                        <h3 class="text-center display-desc">{{dp_col.0.name}}
+                            <span>:</span> <span class="text-center display-value">{{reg.Temp1}}</span><span class='display-unit'>  {{dp_col.0.UE}}</span>
                         </h3>
                     </div>
                 </div>
             </div>
-        {% empty %}
-            <!--colocar alguma coisa aqui, caso não tenha nada no for-->
-        {% endfor %}
-    </div>
 
-    <div class="row">
-        
+            <div class='col-md-6'>
+                <div class="display-content">
+                    <div class="display-data">
+                        <h3 class="text-center display-desc">{{dp_col.1.name}}
+                            <span>:</span> <span class="text-center display-value">{{reg.Temp2}}</span><span class='display-unit'>  {{dp_col.1.UE}}</span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class='col-md-6'>
+                <div class="display-content">
+                    <div class="display-data">
+                        <h3 class="text-center display-desc">{{dp_col.2.name}}
+                            <span>:</span> <span class="text-center display-value">{{reg.Temp3}}</span><span class='display-unit'>  {{dp_col.2.UE}}</span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class='col-md-6'>
+                <div class="display-content">
+                    <div class="display-data">
+                        <h3 class="text-center display-desc">{{dp_col.3.name}}
+                            <span>:</span> <span class="text-center display-value">{{reg.Temp4}}</span><span class='display-unit'>  {{dp_col.3.UE}}</span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class='col-md-6'>
+                <div class="display-content">
+                    <div class="display-data">
+                        <h3 class="text-center display-desc">{{dp_col.4.name}}
+                            <span>:</span> <span class="text-center display-value">{{reg.HotFlow}}</span><span class='display-unit'>  {{dp_col.4.UE}}</span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class='col-md-6'>
+                <div class="display-content">
+                    <div class="display-data">
+                        <h3 class="text-center display-desc">{{dp_col.5.name}}
+                            <span>:</span> <span class="text-center display-value">{{reg.ColdFlow}}</span><span class='display-unit'>  {{dp_col.5.UE}}</span>
+                        </h3>
+                    </div>
+                </div>
+            </div> 
+
+        </div> <!--end row -->
+        <!-- fim displays-->
+
+        <!-- status booleanos -->
+        <div class="row">
+
+            <div class="col-md-6 grp-control" >
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title text-center">Bomba</h3>
+                    </div>
+                    <div class="panel-body">
+                        <!--display-->
+                        <center>
+                            <!--ideia do toggle abortada por enquanto-->
+                            <!--<input type="checkbox" checked data-toggle="toggle">-->
+                            <h1><span class="label label-off text-center">ON</span><h1>
+
+                            <!--comando-->
+                            <button class="btn btn-primary">Ligar</button>
+                            <button class="btn btn-primary">Desligar</button>
+                                
+                            <!--progress bar-->
+                            <div class="progress-circle p50">
+                                <span>50%</span>
+                                <div class="left-half-clipper">
+                                    <div class="first50-bar"></div>
+                                    <div class="value-bar"></div>
+                                </div>
+                            </div>
+
+                            <!--slider-->
+                            <div>
+                                <input id="sp_pumpspeed" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="0.2"/>
+                            </div>
+                        </center>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 grp-control" >
+                <div class="panel panel-custom">
+                    <div class="panel-heading">
+                        <h3 class="panel-title text-center">Aquecedor</h3>
+                    </div>
+                    <div class="panel-body">
+                        <!--display-->
+                        <center>
+                            <!--ideia do toggle abortada por enquanto-->
+                            <!--<input type="checkbox" checked data-toggle="toggle">-->
+                            <h1><span class="label label-off text-center">ON</span><h1>
+
+                            <!--comando-->
+                            <button class="btn btn-primary">Ligar</button>
+                            <button class="btn btn-primary">Desligar</button>
+                                
+                            <!--progress bar-->
+                            <div class="progress-circle p50">
+                                <span>50%</span>
+                                <div class="left-half-clipper">
+                                    <div class="first50-bar"></div>
+                                    <div class="value-bar"></div>
+                                </div>
+                            </div>
+
+                            <!--slider-->
+                            <div>
+                                <input id="sp_pumpspeed" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="0.2"/>
+                            </div>
+                        </center>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
     </div>
 
 {% endblock content %}

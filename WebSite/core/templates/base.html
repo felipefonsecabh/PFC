@@ -7,6 +7,9 @@
         <meta name="description" content="PFC Felipe Fonseca - WebSite">
         <link rel="stylesheet" href="{% static "bootstrap-3.3.7-dist/css/bootstrap.min.css" %}">
         <link rel="stylesheet" href="{% static "css/personal-style.css" %}">
+        <link rel="stylesheet" href="{% static "css/bootstrap-toggle.min.css" %}">
+        <link rel="stylesheet" href="{% static "css/css-circular-prog-bar.css" %}">
+        <link rel="stylesheet" href="{% static "css/bootstrap-slider.min.css" %}">
         <title>Trocador de Calor</title>
     </head>
     <body>
@@ -39,7 +42,7 @@
                 {% block content %}{% endblock %}
         </div>
 
-        <footer>
+        <footer id="powered-by">
             <div class="row">
                 <div class="col-md-12">
                      <center><p>Powered By - Felipe Fonseca</p></center>
@@ -49,5 +52,7 @@
         </footer>
     <script src="{% static "js/jquery-3.2.1.min.js" %}"></script>
     <script src="{% static "bootstrap-3.3.7-dist/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "js/bootstrap-toggle.min.js" %}"></script>
+    <script src="{% static "js/bootstrap-slider.min.js" %}"></script>
     </body>
 </html>

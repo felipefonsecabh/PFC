@@ -8,7 +8,6 @@
     background-color: #CDCDCD;
     /*margin: 10px;*/
     border: solid 1px white;
-
 }
 
 .display-desc{
@@ -27,4 +26,40 @@
 	color: #6c6c6c;
 	font-size: 20px;
 	font-family: "SEGOE UI";
+}
+
+.grp-displays{
+	margin-bottom: 15px;
+}
+
+#powered-by{
+	margin-top:25px;
+}
+
+.label-on{
+	background-color: green;
+}
+
+.label-off{
+	background-color: #6c6c6c;
+	color: black;
+}
+
+.panel-custom {
+  border-color: #ff751a;
+}
+.panel-custom > .panel-heading {
+  color: #fff;
+  background-color: #ff751a;
+  border-color: #ff751a;
+}
+.panel-custom > .panel-heading + .panel-collapse > .panel-body {
+  border-top-color: #ff751a;
+}
+.panel-custom > .panel-heading .badge {
+  color: #ff751a;
+  background-color: #fff;
+}
+.panel-custom > .panel-footer + .panel-collapse > .panel-body {
+  border-bottom-color: #ff751a;
 }
