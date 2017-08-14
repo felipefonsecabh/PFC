@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2d7a2f1d-f65f-42e6-915c-ba87547b20c6}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>manage.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId />
+    <InterpreterVersion />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="manage.py" />
+    <Compile Include="WebSite\core\admin.py" />
+    <Compile Include="WebSite\core\apps.py" />
+    <Compile Include="WebSite\core\models.py" />
+    <Compile Include="WebSite\core\tests.py" />
+    <Compile Include="WebSite\core\urls.py" />
+    <Compile Include="WebSite\core\views.py" />
+    <Compile Include="WebSite\operation\admin.py" />
+    <Compile Include="WebSite\operation\apps.py" />
+    <Compile Include="WebSite\operation\migrations\0001_initial.py" />
+    <Compile Include="WebSite\operation\models.py" />
+    <Compile Include="WebSite\operation\tests.py" />
+    <Compile Include="WebSite\operation\urls.py" />
+    <Compile Include="WebSite\operation\views.py" />
+    <Compile Include="WebSite\settings.py" />
+    <Compile Include="WebSite\urls.py" />
+    <Compile Include="WebSite\wsgi.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="WebSite\core\static\bootstrap-3.3.7-dist\css\bootstrap-theme.css" />
+    <Content Include="WebSite\core\static\bootstrap-3.3.7-dist\css\bootstrap-theme.min.css" />
+    <Content Include="WebSite\core\static\bootstrap-3.3.7-dist\css\bootstrap.css" />
+    <Content Include="WebSite\core\static\bootstrap-3.3.7-dist\css\bootstrap.min.css" />
+    <Content Include="WebSite\core\static\bootstrap-3.3.7-dist\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="WebSite\core\static\bootstrap-3.3.7-dist\js\bootstrap.js" />
+    <Content Include="WebSite\core\static\bootstrap-3.3.7-dist\js\bootstrap.min.js" />
+    <Content Include="WebSite\core\static\bootstrap-3.3.7-dist\js\npm.js" />
+    <Content Include="WebSite\core\static\css\bootstrap-slider.min.css" />
+    <Content Include="WebSite\core\static\css\bootstrap-toggle.min.css" />
+    <Content Include="WebSite\core\static\css\circle.css" />
+    <Content Include="WebSite\core\static\css\css-circular-prog-bar.css" />
+    <Content Include="WebSite\core\static\css\personal-style.css" />
+    <Content Include="WebSite\core\static\img\ufmglogo.png" />
+    <Content Include="WebSite\core\static\js\bootstrap-slider.min.js" />
+    <Content Include="WebSite\core\static\js\bootstrap-toggle.min.js" />
+    <Content Include="WebSite\core\static\js\jquery-3.2.1.js" />
+    <Content Include="WebSite\core\static\js\jquery-3.2.1.min.js" />
+    <Content Include="WebSite\core\static\js\operation.js" />
+    <Content Include="WebSite\core\templates\base.html" />
+    <Content Include="WebSite\core\templates\home.html" />
+    <Content Include="WebSite\operation\templates\operation.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="WebSite" />
+    <Folder Include="WebSite\core" />
+    <Folder Include="WebSite\core\static\bootstrap-3.3.7-dist\css" />
+    <Folder Include="WebSite\core\static\bootstrap-3.3.7-dist\fonts" />
+    <Folder Include="WebSite\core\static\bootstrap-3.3.7-dist\js" />
+    <Folder Include="WebSite\core\static\css" />
+    <Folder Include="WebSite\core\static\img" />
+    <Folder Include="WebSite\core\static\js" />
+    <Folder Include="WebSite\core\templates" />
+    <Folder Include="WebSite\operation" />
+    <Folder Include="WebSite\operation\migrations" />
+    <Folder Include="WebSite\operation\templates" />
+  </ItemGroup>
+  <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
+</Project>

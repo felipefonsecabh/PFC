@@ -38,3 +38,17 @@ class Registers(models.Model):
     def getintspeed(self):
         return int(self.PumpSpeed)
 
+    def serialize(self):
+       data = {}
+       data['Temp1'] = self.Temp1
+       data['Temp2'] = self.Temp2
+       data['Temp3'] = self.Temp3
+       data['Temp4']= self.Temp4
+       data['TimeStamp'] = self.TimeStamp
+       data['ColdFlow']  = self.ColdFlow
+       data['HotFlow'] = self.HotFlow
+       data['PumpStatus'] = self.PumpStatus
+       data['HeaterStatus'] = self.HeaterStatus
+       data['PumpSpeed'] = self.PumpSpeed
+       return(data)
+
