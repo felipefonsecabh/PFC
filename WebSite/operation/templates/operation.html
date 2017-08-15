@@ -109,7 +109,7 @@
                         <center>
                             <!--ideia do toggle abortada por enquanto-->
                             <!--<input type="checkbox" checked data-toggle="toggle">-->
-                            <h1><span class="label label-off text-center">OFF</span><h1>
+                            <h1><span class="label {% if reg.PumpStatus %}label-on {% else %} label-off {% endif %} text-center">{% if reg.PumpStatus %}ON {% else %} OFF {% endif %}</span><h1>
 
                             <!--comando-->
                             <button class="btn btn-primary">Ligar</button>
@@ -143,7 +143,7 @@
                         <center>
                             <!--ideia do toggle abortada por enquanto-->
                             <!--<input type="checkbox" checked data-toggle="toggle">-->
-                            <h1><span class="label label-on text-center">ON</span><h1>
+                            <h1><span class="label {% if reg.HeaterStatus %}label-on {% else %} label-off {% endif %} text-center">{% if reg.HeaterStatus %}ON{% else %}OFF{% endif %}</span><h1>
 
                             <!--comando-->
                             <button class="btn btn-primary">Ligar</button>
