@@ -56,8 +56,8 @@
             <div class='col-md-6'>
                 <div class="display-content">
                     <div class="display-data">
-                        <h3 class="text-center display-desc" id="{{dp_col.2.name}}">{{dp_col.2.name}}
-                            <span>:</span> <span class="text-center display-value">{{reg.Temp3}}</span><span class='display-unit'>  {{dp_col.2.UE}}</span>
+                        <h3 class="text-center display-desc">{{dp_col.2.name}}
+                            <span>:</span> <span class="text-center display-value" id="{{dp_col.2.name}}">{{reg.Temp3}}</span><span class='display-unit'>  {{dp_col.2.UE}}</span>
                         </h3>
                     </div>
                 </div>
@@ -66,8 +66,8 @@
             <div class='col-md-6'>
                 <div class="display-content">
                     <div class="display-data">
-                        <h3 class="text-center display-desc" id="{{dp_col.3.name}}">{{dp_col.3.name}}
-                            <span>:</span> <span class="text-center display-value">{{reg.Temp4}}</span><span class='display-unit'>  {{dp_col.3.UE}}</span>
+                        <h3 class="text-center display-desc">{{dp_col.3.name}}
+                            <span>:</span> <span class="text-center display-value" id="{{dp_col.3.name}}">{{reg.Temp4}}</span><span class='display-unit'>  {{dp_col.3.UE}}</span>
                         </h3>
                     </div>
                 </div>
@@ -76,8 +76,8 @@
             <div class='col-md-6'>
                 <div class="display-content">
                     <div class="display-data">
-                        <h3 class="text-center display-desc" id="{{dp_col.4.name}}">{{dp_col.4.name}}
-                            <span>:</span> <span class="text-center display-value">{{reg.HotFlow}}</span><span class='display-unit'>  {{dp_col.4.UE}}</span>
+                        <h3 class="text-center display-desc">{{dp_col.4.name}}
+                            <span>:</span> <span class="text-center display-value" id="{{dp_col.4.name}}">{{reg.HotFlow}}</span><span class='display-unit'>  {{dp_col.4.UE}}</span>
                         </h3>
                     </div>
                 </div>
@@ -86,8 +86,8 @@
             <div class='col-md-6'>
                 <div class="display-content">
                     <div class="display-data">
-                        <h3 class="text-center display-desc" id="{{dp_col.5.name}}">{{dp_col.5.name}}
-                            <span>:</span> <span class="text-center display-value">{{reg.ColdFlow}}</span><span class='display-unit'>  {{dp_col.5.UE}}</span>
+                        <h3 class="text-center display-desc">{{dp_col.5.name}}
+                            <span>:</span> <span class="text-center display-value" id="{{dp_col.5.name}}">{{reg.ColdFlow}}</span><span class='display-unit'>  {{dp_col.5.UE}}</span>
                         </h3>
                     </div>
                 </div>
@@ -109,15 +109,15 @@
                         <center>
                             <!--ideia do toggle abortada por enquanto-->
                             <!--<input type="checkbox" checked data-toggle="toggle">-->
-                            <h1><span class="label {% if reg.PumpStatus %}label-on {% else %} label-off {% endif %} text-center">{% if reg.PumpStatus %}ON {% else %} OFF {% endif %}</span><h1>
+                            <h1><span class="label {% if reg.PumpStatus %}label-on {% else %} label-off {% endif %} text-center" id="ps" >{% if reg.PumpStatus %}ON {% else %} OFF {% endif %}</span><h1>
 
                             <!--comando-->
                             <button class="btn btn-primary">Ligar</button>
                             <button class="btn btn-primary">Desligar</button>
                                 
                             <!--progress bar-->
-                            <div class="progress-circle {%if reg.getintspeed > 50 %} over50 {% endif %} p{{reg.getintspeed}}">
-                                <span>{{reg.PumpSpeed}}%</span>
+                            <div class="progress-circle {%if reg.getintspeed > 50 %} over50 {% endif %} p{{reg.getintspeed}}" id='pb_speed'>
+                                <span class="pb_speed_value">{{reg.PumpSpeed}}%</span>
                                 <div class="left-half-clipper">
                                     <div class="first50-bar"></div>
                                     <div class="value-bar"></div>
@@ -126,7 +126,7 @@
 
                             <!--slider-->
                             <div>
-                                <input id="sp_pumpspeed" type="text" data-provide="slider" data-slider-min="0" data-slider-max="100" data-slider-step="0.5"/>
+                                <input id="sp_pumpspeed" type="text" data-provide="slider" data-slider-min="0" data-slider-max="100" data-slider-step="0.5" data-slider-value="{{reg.getintspeed}}"/>
                             </div>
                         </center>
                     </div>
@@ -143,7 +143,7 @@
                         <center>
                             <!--ideia do toggle abortada por enquanto-->
                             <!--<input type="checkbox" checked data-toggle="toggle">-->
-                            <h1><span class="label {% if reg.HeaterStatus %}label-on {% else %} label-off {% endif %} text-center">{% if reg.HeaterStatus %}ON{% else %}OFF{% endif %}</span><h1>
+                            <h1><span class="label {% if reg.HeaterStatus %}label-on {% else %} label-off {% endif %} text-center" id="hs">{% if reg.HeaterStatus %}ON{% else %}OFF{% endif %}</span><h1>
 
                             <!--comando-->
                             <button class="btn btn-primary">Ligar</button>
@@ -160,7 +160,7 @@
 
                             <!--slider-->
                             <div>
-                                <input id="sp_heater" type="text" data-provide="slider" data-slider-min="0" data-slider-max="100" data-slider-step="1"/>
+                                <input id="sp_heater" type="text" data-provide="slider" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="{{reg.getintspeed}}"/>
                             </div>
 
                         </center>
