@@ -4,7 +4,8 @@ function refresh_function(){
 		url: 'refresh',
 		success: function(data){
 			//atualizar os dados da página
-			alert(data.Temp1);
+			$('#Temp1').text(data.Temp1);
+			$('#Temp2').text(data.Temp2);
 		}
 	})
 }
@@ -15,8 +16,8 @@ $(document).ready(function(){
 			return 'Current value: ' + value;
 	}}),
 
-	//setInterval(refresh_function,1000);
-	refresh_function();
+	setInterval(refresh_function,2000);
+	//refresh_function();
 
 });
 
