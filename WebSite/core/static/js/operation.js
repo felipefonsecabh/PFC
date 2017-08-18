@@ -13,13 +13,13 @@ function refresh_function(){
 
 			//atualizar dados dos stauts on off
 			if(data.PumpStatus){
-				$('#ps').text = 'ON';
+				$('#ps').text('ON');
 				if($('#ps').hasClass('label-off')){
 					$('#ps').toggleClass('label-off label-on');
 				}
 			}
 			else{
-				$('#ps').text = 'OFF';
+				$('#ps').text('OFF');
 				if($('#ps').hasClass('label-on')){
 					$('#ps').toggleClass('label-on label-off');
 				}
@@ -27,13 +27,13 @@ function refresh_function(){
 			}
 
 			if(data.HeaterStatus){
-				$('#hs').text = 'ON';
+				$('#hs').text('ON');
 				if($('#hs').hasClass('label-off')){
 					$('#hs').toggleClass('label-off label-on');
 				}
 			}
 			else{
-				$('#hs').text = 'OFF';
+				$('#hs').text('OFF');
 				if($('#hs').hasClass('label-on')){
 					$('#hs').toggleClass('label-on label-off');
 				}
@@ -41,28 +41,34 @@ function refresh_function(){
 			}
 
 			//dados analogicos (circle progess bar)
-			$('#pb_speed_value').text = data.PumpSpeed;
+			$('#pb_speed_value').text(data.PumpSpeed+'%');
+			
 			var pb_classes  = $('#pb_speed').attr('class').split(' ');
-			$('#pb_speed').removeClass(pb_classes[2]);
-			$('#pb_speed').addClass('p'+parseInt(data.PumpSpeed));
-			if(data.PumpSpeed > 50){
-				$('#pb_speed').addClass('over50');
-			}
-			else{
-				//alert($('#pb_speed').hasClass('over50'));
-				if($('#pb_speed').hasClass('over50')){	
+
+			if($('#pb_speed').hasClass('over50')){
+				//alert(pb_classes[4]);
+				$('#pb_speed').removeClass(pb_classes[4]) 
+				if(data.PumpSpeed <= 50){
 					$('#pb_speed').removeClass('over50');
 				}
-				
+				$('#pb_speed').addClass('p'+ parseInt(data.PumpSpeed));
+				//alert('p'+parseInt(data.PumpSpeed));
 			}
-
+			else{
+				//alert(pb_classes[2]);
+				$('#pb_speed').removeClass(pb_classes[2]);
+				if(data.PumpSpeed > 50){
+					$('#pb_speed').addClass('over50');
+				}
+				$('#pb_speed').addClass('p'+parseInt(data.PumpSpeed));
+			}	
 		}
 	})
 }
 
 $(document).ready(function(){
 	
-	//setInterval(refresh_function,2000);
+	//setInterval(refresh_function,1000);
 	refresh_function();
 
 	//aqui embaixo setar as funções de comando

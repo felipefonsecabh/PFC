@@ -55,7 +55,8 @@ if __name__=='__main__':
     #loop
 
     prevmillis= millis()
-    print('Servidor rodando!')
+    strstatus = 'Servidor rodando'
+    print(strstatus)
     while True:
         #'''
         #recebe dados da leitura

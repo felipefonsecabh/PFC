@@ -117,7 +117,7 @@
                                 
                             <!--progress bar-->
                             <div class="progress-circle {%if reg.getintspeed > 50 %} over50 {% endif %} p{{reg.getintspeed}}" id='pb_speed'>
-                                <span class="pb_speed_value">{{reg.PumpSpeed}}%</span>
+                                <span id="pb_speed_value">{{reg.PumpSpeed}}%</span>
                                 <div class="left-half-clipper">
                                     <div class="first50-bar"></div>
                                     <div class="value-bar"></div>
