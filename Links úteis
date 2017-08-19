@@ -9,3 +9,7 @@ http://htmlcolorcodes.com/color-picker/
 
 //atualizar página ajax
 https://realpython.com/blog/python/django-and-ajax-form-submissions/
+
+//comando para deletar todos os objetos
+Registers.objects.all().delete()
+
