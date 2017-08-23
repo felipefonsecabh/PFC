@@ -1,15 +1,15 @@
 ﻿#!usr/bin/env python3
 
 #import dos módulos necessarios
-import serial
 import time
-import sqlite3
 import collections
 from datetime import datetime
 from datetime import timedelta
 from threading import Timer
 import os
 import sys
+from smbus import SMBus
+from struct import pack, unpack
 
 '''
 def sqlconnect(slqfilepath):
@@ -22,17 +22,22 @@ def selectalldata(c):
         format(tn = table_name))
 '''
 
+#variaveis
 start_time = datetime.now()
+parseStatus = False
+readinterval = 100
+sendDBinterval =1500
 
 def millis():
     dt = datetime.now()-start_time
     ms = (dt.days*24*60*60 + dt.seconds)*1000+dt.microseconds / 1000.0  
     return ms
 
+def getbit(data,index):
+    return(data & (1<<index)!=0)
+
 #programa principal
 if __name__=='__main__':
-
-    import json
 
     #obtem dados do modelo de registros
     if os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'WebSite.settings'):
@@ -44,63 +49,59 @@ if __name__=='__main__':
         raise
         sys.exit(1)
 
-    #abertura da porta
-    serialport = serial.Serial('/dev/ttyACM0',115200,timeout=1,stopbits=serial.STOPBITS_TWO);
-    time.sleep(1);
+    #inicialização do i2c
+    bus = SMBus(1)
+    arduinoAddress = 12
 
-    #json packet test
-    #testjson = 	'{"temps":[5,10,15,20],"flows":[20,10],"status":[0,0,0],"malha_vq":[2,5,102],"malha_vf":[3,11,52]}'
-
-    tests = 0
-    #loop
-
-    prevmillis= millis()
+    prevmillis= millis()       #contador para solicitação de dados para o arduino
+    prevmillis2 = prevmillis   #contador para envio do banco
     strstatus = 'Servidor rodando'
     print(strstatus)
     while True:
-        #'''
-        #recebe dados da leitura
-        receive = serialport.readline()
-        receive = receive.decode('utf-8') #necessário para o python3
-        #print(receive)
-        #verifica se a string recebida consegue ser interpretada corretamente
         try:
-            data = json.loads(receive,object_pairs_hook=collections.OrderedDict)  #importar os dados para um dicionário na mesma ordem
+            currentmillis2 = millis()
+            if(currentmillis2 - prevmillis2 > readinterval):
+                #faz requisicao pelos dados
+                block = bus.read_i2c_block_data(arduinoAddress,2,27)
+                #efetua parse dos dados
+                data = unpack('6f3b',bytes(block))
+                #print(data)
+                if data[8]==27:  #confere o byte de checksum
+                    parseStatus = True
+                else:
+                    parseStatus = False
+                #proxima execução
+                prevmillis2 = currentmillis2
+
         except Exception as err:
             print(str(err))
-            #sys.exit()
+            parseStatus = False
+
         else:
-            #print json.dumps(data)
+            '''
+            aqui deve-se processar os dados e enviar os comandos caso esteja em 
+            modo automatico
+            '''
             pass
         finally:
-            commandstr = '{"commands":[0,0,30]}\n'
-            serialport.write(commandstr.encode())
-            time.sleep(0.05)  ##concedeu uma consistencia para a comunicação
-        #'''
-        currentmillis = millis()
-        if(currentmillis - prevmillis > 1500):
-            #envia dado para o banco de dados
-            reg = Registers()
-            reg.Temp1 = data['temps'][0]
-            reg.Temp2 = data['temps'][1]
-            reg.Temp3 = data['temps'][2]
-            reg.Temp4 = data['temps'][3]    
-            reg.HotFlow = data['flows'][0]
-            reg.ColdFlow = data['flows'][1]
-            reg.PumpStatus = data['status'][0]
-            reg.HeaterStatus = data['status'][2]
-            reg.PumpSpeed = data['status'][1]
-            reg.TimeStamp = timezone.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-            reg.save()
-            prevmillis = currentmillis
-            
-        
-        tests = tests+1
-        
-        #break
-          
-            #print '1'
-            #timestamp
-            #para descobrir o tipo da variável -> type(variavel)
-            #dt.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+            currentmillis = millis()
+            if(currentmillis - prevmillis > sendDBinterval):
+                #envia dado para o banco de dados (somente se o parse foi feito com sucesso)
+                if parseStatus == True:
+                    reg = Registers()
+                    reg.Temp1 = data[0]
+                    reg.Temp2 = data[1]
+                    reg.Temp3 = data[2]
+                    reg.Temp4 = data[3]    
+                    reg.HotFlow = data[4]
+                    reg.ColdFlow = data[5]
+                    reg.PumpSpeed = data[6]
+                    reg.PumpStatus = getbit(data[7],0)
+                    reg.HeaterStatus = getbit(data[7],1)
+                    reg.TimeStamp = timezone.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+                    reg.save()
+                
+                #proxima execução
+                prevmillis = currentmillis
+
 
