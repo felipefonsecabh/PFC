@@ -10,17 +10,10 @@ import os
 import sys
 from smbus import SMBus
 from struct import pack, unpack
-
-'''
-def sqlconnect(slqfilepath):
-    conn = sqlite3.connect(slqfilepath)
-    c = conn.cursor()
-    return c
-
-def selectalldata(c):
-    c.execute('SELECT * FROM {tn}'.\
-        format(tn = table_name))
-'''
+import threading
+from multiprocessing import Process, Queue
+import asyncore
+import socket
 
 #variaveis
 start_time = datetime.now()
@@ -36,27 +29,36 @@ def millis():
 def getbit(data,index):
     return(data & (1<<index)!=0)
 
-#programa principal
-if __name__=='__main__':
+#classes para implmmentar o servidor assincrono
+class dataHandler(asyncore.dispatcher_with_send):
+    def handle_read(self):
+        data = self.recv(500)
+        #process data and send to i2c bus here
+        print(data)
 
-    #obtem dados do modelo de registros
-    if os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'WebSite.settings'):
-        import django
-        django.setup()
-        from WebSite.operation.models import Registers
-        from django.utils import timezone
-    else:
-        raise
-        sys.exit(1)
+class Server(asyncore.dispatcher):
+    def __init__(self,host,port):
+        asyncore.dispatcher.__init__(self)
+        self.create_socket(socket.AF_INET,socket.SOCK_STREAM)
+        self.bind((host,port))
+        self.listen(1)
+    
+    def handle_accept(self):
+        pair = self.accept()
+        if pair is None:
+            return
+        else:
+            sock,addr = pair
+            #print('Incoming connection from %s' %repr(addr))
+            handler = dataHandler(sock)
 
-    #inicialização do i2c
-    bus = SMBus(1)
-    arduinoAddress = 12
+server = Server('localhost',8080)
 
-    prevmillis= millis()       #contador para solicitação de dados para o arduino
-    prevmillis2 = prevmillis   #contador para envio do banco
-    strstatus = 'Servidor rodando'
-    print(strstatus)
+#classe para implementar a função principal
+
+def mainloop(stime,ftime):
+    prevmillis = stime
+    prevmillis2 = ftime
     while True:
         try:
             currentmillis2 = millis()
@@ -65,7 +67,7 @@ if __name__=='__main__':
                 block = bus.read_i2c_block_data(arduinoAddress,2,27)
                 #efetua parse dos dados
                 data = unpack('6f3b',bytes(block))
-                #print(data)
+                print(data)
                 if data[8]==27:  #confere o byte de checksum
                     parseStatus = True
                 else:
@@ -103,5 +105,34 @@ if __name__=='__main__':
                 
                 #proxima execução
                 prevmillis = currentmillis
+
+#programa principal
+if __name__=='__main__':
+
+    #obtem dados do modelo de registros
+    if os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'WebSite.settings'):
+        import django
+        django.setup()
+        from WebSite.operation.models import Registers
+        from django.utils import timezone
+    else:
+        raise
+        sys.exit(1)
+
+    #inicialização do i2c
+    bus = SMBus(1)
+    arduinoAddress = 12
+
+    prevmillis= millis()       #contador para solicitação de dados para o arduino
+    prevmillis2 = prevmillis   #contador para envio do banco
+
+    p1 = Process(target=asyncore.loop)
+    p1.start()
+    p2 = Process(target=mainloop,args=(prevmillis,prevmillis2,))
+    p2.start()
+
+    strstatus = 'Servidor rodando'
+    print(strstatus)
+    
 
 
