@@ -112,8 +112,8 @@
                             <h1><span class="label {% if reg.PumpStatus %}label-on {% else %} label-off {% endif %} text-center" id="ps" >{% if reg.PumpStatus %}ON {% else %} OFF {% endif %}</span><h1>
 
                             <!--comando-->
-                            <button class="btn btn-primary">Ligar</button>
-                            <button class="btn btn-primary">Desligar</button>
+                            <button class="btn btn-primary commandbutton" id="pumpon" data-target="1">Ligar</button>
+                            <button class="btn btn-primary commandbutton" id="pumpoff" data-target="2">Desligar</button>
                                 
                             <!--progress bar-->
                             <div class="progress-circle {%if reg.getintspeed > 50 %} over50 {% endif %} p{{reg.getintspeed}}" id='pb_speed'>

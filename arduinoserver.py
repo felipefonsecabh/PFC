@@ -67,7 +67,7 @@ def mainloop(stime,ftime):
                 block = bus.read_i2c_block_data(arduinoAddress,2,27)
                 #efetua parse dos dados
                 data = unpack('6f3b',bytes(block))
-                print(data)
+                #print(data)
                 if data[8]==27:  #confere o byte de checksum
                     parseStatus = True
                 else:

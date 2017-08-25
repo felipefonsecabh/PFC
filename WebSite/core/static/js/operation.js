@@ -72,6 +72,18 @@ $(document).ready(function(){
 	refresh_function();
 
 	//aqui embaixo setar as funções de comando
-	
+	$('.commandbutton').click(function(){
+		data = {'command':$(this).data('target')}
+		$.ajax({
+			type: 'POST',
+			url: 'command/',
+			data: data
+		})
+	});
+
+	$('#sp_pumpspeed').on('slideStop',function(slideEvt){
+		//ajax code here
+
+	});
 
 });
