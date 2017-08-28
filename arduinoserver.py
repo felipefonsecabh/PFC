@@ -21,6 +21,9 @@ parseStatus = False
 readinterval = 100
 sendDBinterval =1500
 
+#bytechecksum para confirmação
+chksum = 15
+
 def millis():
     dt = datetime.now()-start_time
     ms = (dt.days*24*60*60 + dt.seconds)*1000+dt.microseconds / 1000.0  
@@ -32,8 +35,10 @@ def getbit(data,index):
 #classes para implmmentar o servidor assincrono
 class dataHandler(asyncore.dispatcher_with_send):
     def handle_read(self):
-        data = self.recv(500)
+        data = self.recv(50)
         #process data and send to i2c bus here
+        bytescommand = pack('=2b',data,chksum)
+        bus.write_block_data(arduinoAddress,1,list(bytescommand))
         print(data)
 
 class Server(asyncore.dispatcher):
