@@ -12,7 +12,10 @@ class Client():
         self.s = socket.socket()
         self.s.connect(Address)
 
-c = Client()
+try:
+    c = Client()
+except Exception as err:
+    print(str(err))
 
 # Create your views here.
 def main(request):

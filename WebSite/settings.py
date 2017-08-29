@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'WebSite.core',
     'WebSite.operation',
+    'WebSite.trend',
 ]
 
 MIDDLEWARE = [
