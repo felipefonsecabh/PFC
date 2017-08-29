@@ -146,8 +146,8 @@
                             <h1><span class="label {% if reg.HeaterStatus %}label-on {% else %} label-off {% endif %} text-center" id="hs">{% if reg.HeaterStatus %}ON{% else %}OFF{% endif %}</span><h1>
 
                             <!--comando-->
-                            <button class="btn btn-primary">Ligar</button>
-                            <button class="btn btn-primary">Desligar</button>
+                            <button class="btn btn-primary commandbutton" id="heateron" data-target="3">Ligar</button>
+                            <button class="btn btn-primary commandbutton" id="heateroff" data-target="4">Desligar</button>
                                 
                             <!--progress bar (1ª lib) -->
                             <div class="progress-circle {%if reg.getintspeed > 50 %} over50 {% endif %} p{{reg.getintspeed}}" >

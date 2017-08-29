@@ -68,8 +68,8 @@ function refresh_function(){
 
 $(document).ready(function(){
 	
-	//setInterval(refresh_function,1000);
-	refresh_function();
+	setInterval(refresh_function,1000);
+	//refresh_function();
 
 	//aqui embaixo setar as funções de comando
 	$('.commandbutton').click(function(){

@@ -36,10 +36,16 @@ def getbit(data,index):
 class dataHandler(asyncore.dispatcher_with_send):
     def handle_read(self):
         data = self.recv(50)
-        #process data and send to i2c bus here
-        bytescommand = pack('=2b',data,chksum)
-        bus.write_block_data(arduinoAddress,1,list(bytescommand))
-        print(data)
+        
+        #digital commands
+        try:
+            bytescommand = pack('=cb',data,chksum)
+            bus.write_block_data(arduinoAddress,ord(data),list(bytescommand))
+        except Exception as err:
+            print(str(err))
+        finally:
+            pass
+            #print(data)
 
 class Server(asyncore.dispatcher):
     def __init__(self,host,port):
@@ -69,7 +75,7 @@ def mainloop(stime,ftime):
             currentmillis2 = millis()
             if(currentmillis2 - prevmillis2 > readinterval):
                 #faz requisicao pelos dados
-                block = bus.read_i2c_block_data(arduinoAddress,2,27)
+                block = bus.read_i2c_block_data(arduinoAddress,6,27)
                 #efetua parse dos dados
                 data = unpack('6f3b',bytes(block))
                 #print(data)

@@ -29,9 +29,6 @@ def refresh(request):
 
     if request.is_ajax():
         reg = Registers.objects.latest('pk')
-        print(reg)
-
-        #return HttpResponse([reg])
         return JsonResponse(reg.serialize(),safe=False)
 
 @csrf_exempt
