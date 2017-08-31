@@ -26,7 +26,7 @@
                         <h2>
                             <span class="text-center" style="font-size:14px;">Operation Mode</span>
                             <!--este campo é inicializado por java script -->
-                            <span id="operation-mode" class="label label-info">Manual</span>
+                            <span id="operation-mode" class="label label-info">{%if op.OpMode == 0 %} Automático {% else %} Manual {% endif %} </span>
                         </h2>
                     </div>
                 </center>
@@ -36,11 +36,11 @@
                     <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Actions
                         <span class="caret"></span></button>
                         <ul class="dropdown-menu">
-                            <li><a type="button" class="actions" data-toggle="confirmation" data-placement="left" data-action="1"> Set Manual</a></li>
-                            <li><a type="button" class="actions" data-toggle="confirmation" data-placement="left" data-action="2"> Set Automatic</a></li>
-                            <li><a type="button" class="actions" data-toggle="confirmation" data-placement="left" data-action="3"> Start Store Data </a></li>
-                            <li><a type="button" class="actions" data-toggle="confirmation" data-placement="left" data-action="4"> Stop Store Data</a></li>
-                            <li><a type="button" class="actions" data-toggle="confirmation" data-placement="left" data-action="5"> Clear Store Data</a></li>
+                            <li><a type="button" class="btn btn-default actions {% if reg.ArduinoMode == 0 or op.OpMode == 0 %} disabled {% endif %}" data-toggle="confirmation" data-placement="left" data-action='7'> Set Manual</a></li>
+                            <li><a type="button" class="btn btn-default actions {% if reg.ArduinoMode == 0 or op.OpMode == 0 %} disabled {% endif %}" data-toggle="confirmation" data-placement="left" data-action="8"> Set Automatic</a></li>
+                            <li><a type="button" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="9"> Start Store Data </a></li>
+                            <li><a type="button" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="A"> Stop Store Data</a></li>
+                            <li><a type="button" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="B"> Clear Store Data</a></li>
                         </ul>
                 </div>
         </div>
@@ -48,29 +48,11 @@
         <!--displays-->
         <div class="row grp-displays">
 
-            <!--tentativa dinamica 
-
-                {% for dp in dp_col %}
-                    <div class='col-md-6'>
-                        <div class="display-content">
-                            <div class="display-data">
-                                <h3 class="text-center display-desc">{{dp.name}}
-                                    <span>:</span> <span class="text-center display-value">{{dp.Value}}</span><span class='display-unit'>  {{dp.UE}}</span>
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                {% empty %}
-                    #colocar alguma coisa aqui, caso não tenha nada no for
-                {% endfor %}
-
-            fim de tentativa -->
-
             <div class='col-md-6'>
                 <div class="display-content">
                     <div class="display-data">
                         <h3 class="text-center display-desc">{{dp_col.0.name}}
-                            <span>:</span> <span class="text-center display-value" id="{{dp_col.0.name}}">{{reg.Temp1}}</span><span class='display-unit'>  {{dp_col.0.UE}}</span>
+                            <span>:</span> <span class="text-center display-value" id="{{dp_col.0.name}}">{{reg.Temp1|floatformat:2}}</span><span class='display-unit'>  {{dp_col.0.UE}}</span>
                         </h3>
                     </div>
                 </div>
@@ -80,7 +62,7 @@
                 <div class="display-content">
                     <div class="display-data">
                         <h3 class="text-center display-desc" >{{dp_col.1.name}}
-                            <span>:</span> <span class="text-center display-value" id="{{dp_col.1.name}}">{{reg.Temp2}}</span><span class='display-unit'>  {{dp_col.1.UE}}</span>
+                            <span>:</span> <span class="text-center display-value" id="{{dp_col.1.name}}">{{reg.Temp2|floatformat:2}}</span><span class='display-unit'>  {{dp_col.1.UE}}</span>
                         </h3>
                     </div>
                 </div>
@@ -90,7 +72,7 @@
                 <div class="display-content">
                     <div class="display-data">
                         <h3 class="text-center display-desc">{{dp_col.2.name}}
-                            <span>:</span> <span class="text-center display-value" id="{{dp_col.2.name}}">{{reg.Temp3}}</span><span class='display-unit'>  {{dp_col.2.UE}}</span>
+                            <span>:</span> <span class="text-center display-value" id="{{dp_col.2.name}}">{{reg.Temp3|floatformat:2}}</span><span class='display-unit'>  {{dp_col.2.UE}}</span>
                         </h3>
                     </div>
                 </div>
@@ -100,7 +82,7 @@
                 <div class="display-content">
                     <div class="display-data">
                         <h3 class="text-center display-desc">{{dp_col.3.name}}
-                            <span>:</span> <span class="text-center display-value" id="{{dp_col.3.name}}">{{reg.Temp4}}</span><span class='display-unit'>  {{dp_col.3.UE}}</span>
+                            <span>:</span> <span class="text-center display-value" id="{{dp_col.3.name}}">{{reg.Temp4|floatformat:2}}</span><span class='display-unit'>  {{dp_col.3.UE}}</span>
                         </h3>
                     </div>
                 </div>
@@ -110,7 +92,7 @@
                 <div class="display-content">
                     <div class="display-data">
                         <h3 class="text-center display-desc">{{dp_col.4.name}}
-                            <span>:</span> <span class="text-center display-value" id="{{dp_col.4.name}}">{{reg.HotFlow}}</span><span class='display-unit'>  {{dp_col.4.UE}}</span>
+                            <span>:</span> <span class="text-center display-value" id="{{dp_col.4.name}}">{{reg.HotFlow|floatformat:2}}</span><span class='display-unit'>  {{dp_col.4.UE}}</span>
                         </h3>
                     </div>
                 </div>
@@ -120,7 +102,7 @@
                 <div class="display-content">
                     <div class="display-data">
                         <h3 class="text-center display-desc">{{dp_col.5.name}}
-                            <span>:</span> <span class="text-center display-value" id="{{dp_col.5.name}}">{{reg.ColdFlow}}</span><span class='display-unit'>  {{dp_col.5.UE}}</span>
+                            <span>:</span> <span class="text-center display-value" id="{{dp_col.5.name}}">{{reg.ColdFlow|floatformat:2}}</span><span class='display-unit'>  {{dp_col.5.UE}}</span>
                         </h3>
                     </div>
                 </div>
@@ -145,12 +127,12 @@
                             <h1><span class="label {% if reg.PumpStatus %}label-on {% else %} label-off {% endif %} text-center" id="ps" >{% if reg.PumpStatus %}ON {% else %} OFF {% endif %}</span><h1>
 
                             <!--comando-->
-                            <button class="btn btn-primary commandbutton" id="pumpon" data-target="1">Ligar</button>
-                            <button class="btn btn-primary commandbutton" id="pumpoff" data-target="2">Desligar</button>
+                            <button class="btn btn-primary commandbutton {% if reg.ArduinoMode == 0 or op.OpMode == 0 %} disabled {% endif %}"  id="pumpon" data-target="1">Ligar</button>
+                            <button class="btn btn-primary commandbutton {% if reg.ArduinoMode == 0 or op.OpMode == 0 %} disabled {% endif %}" id="pumpoff" data-target="2">Desligar</button>
                                 
                             <!--progress bar-->
                             <div class="progress-circle {%if reg.getintspeed > 50 %} over50 {% endif %} p{{reg.getintspeed}}" id='pb_speed'>
-                                <span id="pb_speed_value">{{reg.PumpSpeed}}%</span>
+                                <span id="pb_speed_value">{{reg.PumpSpeed|floatformat:1}}%</span>
                                 <div class="left-half-clipper">
                                     <div class="first50-bar"></div>
                                     <div class="value-bar"></div>
@@ -159,7 +141,8 @@
 
                             <!--slider-->
                             <div>
-                                <input id="sp_pumpspeed" type="text" data-provide="slider" data-slider-min="0" data-slider-max="100" data-slider-step="0.5" data-slider-value="{{reg.getintspeed}}"/>
+                                <input id="sp_pumpspeed" type="text" data-provide="slider" data-slider-min="0" data-slider-max="100" 
+                                data-slider-step="0.5" data-slider-enabled="{%if reg.ArduinoMode == 0 or op.OpMode == 0 %} false {% else %} true {% endif %}"  data-slider-value="{{reg.getintspeed}}"/>
                             </div>
                         </center>
                     </div>
@@ -179,12 +162,12 @@
                             <h1><span class="label {% if reg.HeaterStatus %}label-on {% else %} label-off {% endif %} text-center" id="hs">{% if reg.HeaterStatus %}ON{% else %}OFF{% endif %}</span><h1>
 
                             <!--comando-->
-                            <button class="btn btn-primary commandbutton" id="heateron" data-target="3">Ligar</button>
-                            <button class="btn btn-primary commandbutton" id="heateroff" data-target="4">Desligar</button>
+                            <button class="btn btn-primary commandbutton {% if reg.ArduinoMode == 0 or op.OpMode == 0 %} disabled {% endif %}" id="heateron" data-target="3">Ligar</button>
+                            <button class="btn btn-primary commandbutton {% if reg.ArduinoMode == 0 or op.OpMode == 0 %} disabled {% endif %}" id="heateroff" data-target="4">Desligar</button>
                                 
                             <!--progress bar (1ª lib) -->
                             <div class="progress-circle {%if reg.getintspeed > 50 %} over50 {% endif %} p{{reg.getintspeed}}" >
-                                <span>{{reg.PumpSpeed}}%</span>
+                                <span>{{reg.PumpSpeed|floatformat:1}}%</span>
                                 <div class="left-half-clipper">
                                     <div class="first50-bar"></div>
                                     <div class="value-bar circle-color"></div>
@@ -193,7 +176,8 @@
 
                             <!--slider-->
                             <div>
-                                <input id="sp_heater" type="text" data-provide="slider" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="{{reg.getintspeed}}"/>
+                                <input id="sp_heater" type="text" data-provide="slider" data-slider-min="0" data-slider-max="100" data-slider-step="1" 
+                                data-slider-enabled="{%if reg.ArduinoMode == 0 or op.OpMode == 0 %} false {% else %} true {% endif %}" data-slider-value="{{reg.getintspeed}}"/>
                             </div>
 
                         </center>

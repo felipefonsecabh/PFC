@@ -4,12 +4,12 @@ function refresh_function(){
 		url: 'refresh',
 		success: function(data){
 			//atualizar os dados dos displays
-			$('#Temp1').text(data.Temp1.toFixed(2));
-			$('#Temp2').text(data.Temp2.toFixed(2));
-			$('#Temp3').text(data.Temp3.toFixed(2));
-			$('#Temp4').text(data.Temp4.toFixed(2));
-			$('#HotFlow').text(data.HotFlow.toFixed(2));
-			$('#ColdFlow').text(data.ColdFlow.toFixed(2));
+			$('#Temp1').text(data.Temp1.toFixed(2).replace('.',','));
+			$('#Temp2').text(data.Temp2.toFixed(2).replace('.',','));
+			$('#Temp3').text(data.Temp3.toFixed(2).replace('.',','));
+			$('#Temp4').text(data.Temp4.toFixed(2).replace('.',','));
+			$('#HotFlow').text(data.HotFlow.toFixed(2).replace('.',','));
+			$('#ColdFlow').text(data.ColdFlow.toFixed(2).replace('.',','));
 
 			//atualizar dados dos stauts on off
 			if(data.PumpStatus){
@@ -41,7 +41,7 @@ function refresh_function(){
 			}
 
 			//dados analogicos (circle progess bar)
-			$('#pb_speed_value').text(data.PumpSpeed+'%');
+			$('#pb_speed_value').text(data.PumpSpeed.toFixed(1).replace('.',',') +'%');
 			
 			var pb_classes  = $('#pb_speed').attr('class').split(' ');
 
@@ -73,7 +73,7 @@ $(document).ready(function(){
 
 	//aqui embaixo setar as funções de comando
 	$('.commandbutton').click(function(){
-		data = {'command':$(this).data('target')}
+		data = {'command':$(this).data('target')};
 		$.ajax({
 			type: 'POST',
 			url: 'command/',
@@ -93,7 +93,11 @@ $(document).ready(function(){
 
 	//retorno das confirmações para fazer as ações
 	$('.actions').on('confirmed.bs.confirmation',function(){
-		alert($(this).data('action'));
+		data = {'command': $(this).data('action')};
+		$.ajax({
+			type:'POST',
+			url: 'command/',
+			data: data
+		});		
 	});
-
 });

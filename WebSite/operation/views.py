@@ -1,16 +1,10 @@
 from django.shortcuts import render
-from .models import DataDisplay,Registers
+from .models import DataDisplay,Registers,OperationMode
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
-import socket
-
-#criar um cliente socket
-class Client():
-    def __init__(self,Address=('localhost',8080)):
-        self.s = socket.socket()
-        self.s.connect(Address)
+from WebSite.core.tcpclient import Client
 
 try:
     c = Client()
@@ -22,9 +16,11 @@ def main(request):
     dp_col = DataDisplay.objects.all()
     #print(dp_col[0].name)
     reg = Registers.objects.latest('pk')
+    op = OperationMode.objects.latest('pk')
     context = {
         'dp_col': dp_col,
-        'reg':reg
+        'reg':reg,
+        'op':op
     }
     return render(request,'operation.html',context)
 

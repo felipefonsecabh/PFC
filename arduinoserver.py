@@ -23,7 +23,7 @@ sendDBinterval =1500
 #0 para local - comandos via browser não são permitidos, 1 para remoto
 arduino_mode = 0   #dado que vem do arduino
 
-#0 para manual- comandos via browser são permitidos, 1 para automatico - comandos via PID
+#1 para manual- comandos via browser são permitidos, 0 para automatico - comandos via PID
 operation_mode = 1   #dado que é enviado do browser, só faz sentido com arduino_mode em remoto
                    #começa com 1 indicando que a operação começa manual
 
@@ -71,16 +71,30 @@ def parseData(data):
 
 #classes para implmmentar o servidor assincrono
 class dataHandler(asyncore.dispatcher_with_send):
-    def handle_read(self):
-        data = self.recv(50)
+    
+    '''
+    def __init__(self,sock,queue):
+        self.queue = queue
+        self.sock = sock
+    '''
 
+    def handle_read(self):
+        print(type(self))
+        data = self.recv(50)
         '''interpretar os comandos:
         operação: Ligar/Desligar Bomba, Ligar/Desligar Aquecedor, Alterar velocidade da bomba
         Modo: trocar de modo automático para remoto
         Armazenamento: ativar ou desativar o armazenamento de dados para o trend
         '''
-
-
+        if(data == b'7'):
+            operation_mode = 1
+            queue.put(data)
+            print(data)
+        elif(data == b'8'):
+            operation_mode = 0
+            queue.put(data)
+            print(data)
+            
         try:
             bytescommand = pack('=cb',data,chksum)
             bus.write_block_data(arduinoAddress,ord(data),list(bytescommand))
@@ -91,11 +105,15 @@ class dataHandler(asyncore.dispatcher_with_send):
             #print(data)
 
 class Server(asyncore.dispatcher):
-    def __init__(self,host,port):
+
+    #queue = None
+
+    def __init__(self,host,port,queue):
         asyncore.dispatcher.__init__(self)
         self.create_socket(socket.AF_INET,socket.SOCK_STREAM)
         self.bind((host,port))
         self.listen(1)
+        self.queue = queue
     
     def handle_accept(self):
         pair = self.accept()
@@ -106,21 +124,34 @@ class Server(asyncore.dispatcher):
             #print('Incoming connection from %s' %repr(addr))
             handler = dataHandler(sock)
 
-server = Server('localhost',8080)
+
 
 #classe para implementar a função principal
 
-def mainloop(stime,ftime):
+def tcpserver(queue):
+    server = Server('localhost',8080,queue)
+    asyncore.loop()
+
+def mainloop(stime,ftime,queue):
     prevmillis = stime
     prevmillis2 = ftime
+    operation_mode = 1
     while True:
         try:
             currentmillis2 = millis()
+            if(queue.empty):
+                pass
+            else:
+                print('passou')
+                operation_mode = queue.get()
+                
             if(currentmillis2 - prevmillis2 > readinterval):
                 #faz requisicao pelos dados
+                #print(operation_mode)
                 block = bus.read_i2c_block_data(arduinoAddress,6,27)
                 #efetua parse dos dados
                 data = unpack('6f3b',bytes(block))
+                #print(data)
                 bstatus, lastdata = parseData(data)
                 #proxima execução
                 prevmillis2 = currentmillis2
@@ -165,9 +196,12 @@ if __name__=='__main__':
     prevmillis= millis()       #contador para solicitação de dados para o arduino
     prevmillis2 = prevmillis   #contador para envio do banco
 
-    p1 = Process(target=asyncore.loop)
+    #cria uma queue para compartilhar variávies do processo
+    queue = Queue()
+
+    p1 = Process(target=tcpserver,args=(queue,))
     p1.start()
-    p2 = Process(target=mainloop,args=(prevmillis,prevmillis2,))
+    p2 = Process(target=mainloop,args=(prevmillis,prevmillis2,queue,))
     p2.start()
 
     strstatus = 'Servidor rodando'
