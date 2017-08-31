@@ -83,3 +83,22 @@
 .panel-custom-2 > .panel-footer + .panel-collapse > .panel-body {
   border-bottom-color: #7e1416;
 }
+
+#Op_mode{
+  font-size: 20px;
+}
+
+@media (max-width: 500px){
+
+  .btn-responsive {
+    white-space: normal !important;
+    word-wrap: break-word;
+    margin-bottom: 15px;
+  }
+  .last-button-grp{
+    margin-bottom: 0px;
+  }
+  #SetM{
+    margin-top: 20px;
+  }
+}

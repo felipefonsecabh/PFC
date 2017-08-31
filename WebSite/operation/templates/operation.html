@@ -12,6 +12,39 @@
 {% block content %}
 
     <div class="container">
+ 
+        <div class="row col-md-12" style="margin-bottom:10px;">
+            <div class="container-fluid" style="margin-bottom: 40px;">
+                <center>
+                    <div class="col-xs-6">
+                        <h2>
+                            <span class="text-center" style="font-size:14px;">Arduino Mode</span>
+                            <span id="arduino-mode" class="label {% if reg.ArduinoMode %}label-info {% else %} label-info {% endif %}">{% if reg.ArduinoMode %}Remoto {% else %} Local {% endif %}</span>
+                        </h2>
+                    </div>
+                    <div class="col-xs-6">
+                        <h2>
+                            <span class="text-center" style="font-size:14px;">Operation Mode</span>
+                            <!--este campo é inicializado por java script -->
+                            <span id="operation-mode" class="label label-info">Manual</span>
+                        </h2>
+                    </div>
+                </center>
+            </div>
+
+                <div class="dropdown pull-right">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Actions
+                        <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a type="button" class="actions" data-toggle="confirmation" data-placement="left" data-action="1"> Set Manual</a></li>
+                            <li><a type="button" class="actions" data-toggle="confirmation" data-placement="left" data-action="2"> Set Automatic</a></li>
+                            <li><a type="button" class="actions" data-toggle="confirmation" data-placement="left" data-action="3"> Start Store Data </a></li>
+                            <li><a type="button" class="actions" data-toggle="confirmation" data-placement="left" data-action="4"> Stop Store Data</a></li>
+                            <li><a type="button" class="actions" data-toggle="confirmation" data-placement="left" data-action="5"> Clear Store Data</a></li>
+                        </ul>
+                </div>
+        </div>
+
         <!--displays-->
         <div class="row grp-displays">
 
@@ -178,4 +211,5 @@
     <script src="{% static "js/operation.js" %}"></script>
     <script src="{% static "js/bootstrap-toggle.min.js" %}"></script>
     <script src="{% static "js/bootstrap-slider.min.js" %}"></script>
+    <script src="{% static "js/bootstrap-confirmation.min.js" %}"></script>
 {% endblock js %}

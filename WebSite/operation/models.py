@@ -28,6 +28,7 @@ class Registers(models.Model):
     ColdFlow = models.FloatField()
     PumpStatus = models.BooleanField()
     HeaterStatus = models.BooleanField()
+    ArduinoMode = models.BooleanField()
     PumpSpeed = models.FloatField()
 
     class Meta:
@@ -49,6 +50,16 @@ class Registers(models.Model):
        data['HotFlow'] = self.HotFlow
        data['PumpStatus'] = self.PumpStatus
        data['HeaterStatus'] = self.HeaterStatus
+       data['ArduinoMode'] = self.ArduinoMode
        data['PumpSpeed'] = self.PumpSpeed
        return(data)
+
+class OperationMode(models.Model):
+    '''
+    clase apenas para armazenar o modo de operação (local/remoto)
+    usado para manter a consitência de multi-clients
+    '''
+    OpMode = models.BooleanField()
+    
+
 

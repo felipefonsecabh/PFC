@@ -4,12 +4,12 @@ function refresh_function(){
 		url: 'refresh',
 		success: function(data){
 			//atualizar os dados dos displays
-			$('#Temp1').text(data.Temp1);
-			$('#Temp2').text(data.Temp2);
-			$('#Temp3').text(data.Temp3);
-			$('#Temp4').text(data.Temp4);
-			$('#HotFlow').text(data.HotFlow);
-			$('#ColdFlow').text(data.ColdFlow);
+			$('#Temp1').text(data.Temp1.toFixed(2));
+			$('#Temp2').text(data.Temp2.toFixed(2));
+			$('#Temp3').text(data.Temp3.toFixed(2));
+			$('#Temp4').text(data.Temp4.toFixed(2));
+			$('#HotFlow').text(data.HotFlow.toFixed(2));
+			$('#ColdFlow').text(data.ColdFlow.toFixed(2));
 
 			//atualizar dados dos stauts on off
 			if(data.PumpStatus){
@@ -84,6 +84,16 @@ $(document).ready(function(){
 	$('#sp_pumpspeed').on('slideStop',function(slideEvt){
 		//ajax code here
 
+	});
+
+	//habilita o uso de confirmações para ações importantes
+	$('[data-toggle=confirmation]').confirmation({
+		rootSelector: '[data-toggle=confirmation]',
+	});
+
+	//retorno das confirmações para fazer as ações
+	$('.actions').on('confirmed.bs.confirmation',function(){
+		alert($(this).data('action'));
 	});
 
 });

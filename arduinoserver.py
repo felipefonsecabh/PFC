@@ -17,13 +17,26 @@ import socket
 
 #variaveis
 start_time = datetime.now()
-parseStatus = False
 readinterval = 100
 sendDBinterval =1500
+
+#0 para local - comandos via browser não são permitidos, 1 para remoto
+arduino_mode = 0   #dado que vem do arduino
+
+#0 para manual- comandos via browser são permitidos, 1 para automatico - comandos via PID
+operation_mode = 1   #dado que é enviado do browser, só faz sentido com arduino_mode em remoto
+                   #começa com 1 indicando que a operação começa manual
+
+#dicionario que armazena a ultima informação recebida
+bstatus = 0
+lastdata = {}
 
 #bytechecksum para confirmação
 chksum = 15
 
+#variavel para declarar uma tupla vazia
+
+#funções auxiliares
 def millis():
     dt = datetime.now()-start_time
     ms = (dt.days*24*60*60 + dt.seconds)*1000+dt.microseconds / 1000.0  
@@ -32,12 +45,42 @@ def millis():
 def getbit(data,index):
     return(data & (1<<index)!=0)
 
+def parseData(data):
+    mydata = {}
+    
+    if data[8] == 27:
+        mydata['Temp1'] = data[0]
+        mydata['Temp2'] = data[1]
+        mydata['Temp3'] = data[2]
+        mydata['Temp4'] = data[3]
+        mydata['HotFlow'] = data[4]
+        mydata['ColdFlow'] = data[5]
+        mydata['PumpSpeed'] = data[6]
+        mydata['PumpStatus'] = getbit(data[7],0)
+        mydata['HeaterStatus'] = getbit(data[7],1)
+        mydata['ArduinoMode'] = getbit(data[7],2)
+        mydata['TimeStamp'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+
+        #pegar o modo do arduino
+        arduino_mode = mydata['ArduinoMode']      
+        parseStatus = True
+    else:
+        parseStatus = False
+
+    return parseStatus, mydata
+
 #classes para implmmentar o servidor assincrono
 class dataHandler(asyncore.dispatcher_with_send):
     def handle_read(self):
         data = self.recv(50)
-        
-        #digital commands
+
+        '''interpretar os comandos:
+        operação: Ligar/Desligar Bomba, Ligar/Desligar Aquecedor, Alterar velocidade da bomba
+        Modo: trocar de modo automático para remoto
+        Armazenamento: ativar ou desativar o armazenamento de dados para o trend
+        '''
+
+
         try:
             bytescommand = pack('=cb',data,chksum)
             bus.write_block_data(arduinoAddress,ord(data),list(bytescommand))
@@ -78,41 +121,26 @@ def mainloop(stime,ftime):
                 block = bus.read_i2c_block_data(arduinoAddress,6,27)
                 #efetua parse dos dados
                 data = unpack('6f3b',bytes(block))
-                #print(data)
-                if data[8]==27:  #confere o byte de checksum
-                    parseStatus = True
-                else:
-                    parseStatus = False
+                bstatus, lastdata = parseData(data)
                 #proxima execução
                 prevmillis2 = currentmillis2
 
         except Exception as err:
             print(str(err))
-            parseStatus = False
 
         else:
             '''
             aqui deve-se processar os dados e enviar os comandos caso esteja em 
             modo automatico
             '''
-            pass
+
+                            
         finally:
             currentmillis = millis()
             if(currentmillis - prevmillis > sendDBinterval):
-                #envia dado para o banco de dados (somente se o parse foi feito com sucesso)
-                if parseStatus == True:
-                    reg = Registers()
-                    reg.Temp1 = data[0]
-                    reg.Temp2 = data[1]
-                    reg.Temp3 = data[2]
-                    reg.Temp4 = data[3]    
-                    reg.HotFlow = data[4]
-                    reg.ColdFlow = data[5]
-                    reg.PumpSpeed = data[6]
-                    reg.PumpStatus = getbit(data[7],0)
-                    reg.HeaterStatus = getbit(data[7],1)
-                    reg.TimeStamp = timezone.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-                    reg.save()
+                #envia dado para o banco de dados (lastdata contém últimos dados válidos)
+                reg = Registers(**lastdata)
+                reg.save()
                 
                 #proxima execução
                 prevmillis = currentmillis

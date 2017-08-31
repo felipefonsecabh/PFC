@@ -19,8 +19,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
     url(r'', include('WebSite.core.urls', namespace='core')),
     url(r'^operation/', include('WebSite.operation.urls',namespace='op')),
     url(r'^trend/', include('WebSite.trend.urls',namespace='trend')),
+    url(r'^admin/', admin.site.urls),
 ]
