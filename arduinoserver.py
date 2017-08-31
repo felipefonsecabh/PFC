@@ -11,7 +11,7 @@ import sys
 from smbus import SMBus
 from struct import pack, unpack
 import threading
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Manager,Pool
 import asyncore
 import socket
 
@@ -72,14 +72,17 @@ def parseData(data):
 #classes para implmmentar o servidor assincrono
 class dataHandler(asyncore.dispatcher_with_send):
     
-    '''
-    def __init__(self,sock,queue):
+    
+    def __init__(self,sock, addr,queue,server):
+        self.SERVER = server
         self.queue = queue
         self.sock = sock
-    '''
+        self.CA = addr
+        self.DATA =''
+        self.out_buffer =''
+        asyncore.dispatcher.__init__(self,sock)
 
     def handle_read(self):
-        print(type(self))
         data = self.recv(50)
         '''interpretar os comandos:
         operação: Ligar/Desligar Bomba, Ligar/Desligar Aquecedor, Alterar velocidade da bomba
@@ -88,11 +91,13 @@ class dataHandler(asyncore.dispatcher_with_send):
         '''
         if(data == b'7'):
             operation_mode = 1
-            queue.put(data)
+            self.queue.put(operation_mode)
+            print(type(self.queue))
             print(data)
         elif(data == b'8'):
             operation_mode = 0
-            queue.put(data)
+            self.queue.put(operation_mode)
+            print(type(self.queue))
             print(data)
             
         try:
@@ -122,7 +127,7 @@ class Server(asyncore.dispatcher):
         else:
             sock,addr = pair
             #print('Incoming connection from %s' %repr(addr))
-            handler = dataHandler(sock)
+            handler = dataHandler(sock,addr,self.queue,self)
 
 
 
@@ -141,6 +146,7 @@ def mainloop(stime,ftime,queue):
             currentmillis2 = millis()
             if(queue.empty):
                 pass
+                #print('vazio')
             else:
                 print('passou')
                 operation_mode = queue.get()
@@ -197,12 +203,20 @@ if __name__=='__main__':
     prevmillis2 = prevmillis   #contador para envio do banco
 
     #cria uma queue para compartilhar variávies do processo
-    queue = Queue()
 
+    queue = Queue()
     p1 = Process(target=tcpserver,args=(queue,))
     p1.start()
     p2 = Process(target=mainloop,args=(prevmillis,prevmillis2,queue,))
     p2.start()
+    
+    '''
+    manager = Manager()
+    q  = manager.Queue
+    pool = Pool()
+    p1 = pool.apply_async(tcpserver,args=(q,))
+    p2 = pool.apply_async(mainloop,args=(prevmillis,prevmillis2,q,))
+    '''
 
     strstatus = 'Servidor rodando'
     print(strstatus)
