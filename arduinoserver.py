@@ -59,6 +59,7 @@ def parseData(data):
         mydata['PumpStatus'] = getbit(data[7],0)
         mydata['HeaterStatus'] = getbit(data[7],1)
         mydata['ArduinoMode'] = getbit(data[7],2)
+        mydata['EmergencyMode'] = getbit(data[7],3)
         mydata['TimeStamp'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
         #pegar o modo do arduino
@@ -72,7 +73,7 @@ def parseData(data):
 #classes para implmmentar o servidor assincrono
 class dataHandler(asyncore.dispatcher_with_send):
     
-    
+    '''
     def __init__(self,sock, addr,queue,server):
         self.SERVER = server
         self.queue = queue
@@ -81,9 +82,14 @@ class dataHandler(asyncore.dispatcher_with_send):
         self.DATA =''
         self.out_buffer =''
         asyncore.dispatcher.__init__(self,sock)
+    '''
 
     def handle_read(self):
+        #necessário declarar como global, pois está alterando uma variavel dentro da thread
+        global operation_mode 
+
         data = self.recv(50)
+
         '''interpretar os comandos:
         operação: Ligar/Desligar Bomba, Ligar/Desligar Aquecedor, Alterar velocidade da bomba
         Modo: trocar de modo automático para remoto
@@ -91,15 +97,20 @@ class dataHandler(asyncore.dispatcher_with_send):
         '''
         if(data == b'7'):
             operation_mode = 1
-            self.queue.put(operation_mode)
-            print(type(self.queue))
-            print(data)
+            #atualizar o registro no ORM
+            obj = OperationMode.objects.latest('pk')
+            print(obj.OpMode)
+            obj.OpMode = operation_mode
+            obj.save()
+
         elif(data == b'8'):
             operation_mode = 0
-            self.queue.put(operation_mode)
-            print(type(self.queue))
-            print(data)
-            
+            #atualizar o registro no ORM
+            obj = OperationMode.objects.latest('pk')
+            print(obj.OpMode)
+            obj.OpMode = operation_mode
+            obj.save()
+
         try:
             bytescommand = pack('=cb',data,chksum)
             bus.write_block_data(arduinoAddress,ord(data),list(bytescommand))
@@ -113,12 +124,12 @@ class Server(asyncore.dispatcher):
 
     #queue = None
 
-    def __init__(self,host,port,queue):
+    def __init__(self,host,port):
         asyncore.dispatcher.__init__(self)
         self.create_socket(socket.AF_INET,socket.SOCK_STREAM)
         self.bind((host,port))
         self.listen(1)
-        self.queue = queue
+        #self.queue = queue
     
     def handle_accept(self):
         pair = self.accept()
@@ -127,29 +138,31 @@ class Server(asyncore.dispatcher):
         else:
             sock,addr = pair
             #print('Incoming connection from %s' %repr(addr))
-            handler = dataHandler(sock,addr,self.queue,self)
+            handler = dataHandler(sock)
 
 
 
 #classe para implementar a função principal
 
 def tcpserver(queue):
-    server = Server('localhost',8080,queue)
+    server = Server('localhost',8080)
     asyncore.loop()
 
-def mainloop(stime,ftime,queue):
+def mainloop(stime,ftime):
     prevmillis = stime
     prevmillis2 = ftime
-    operation_mode = 1
     while True:
         try:
             currentmillis2 = millis()
+
+            '''
             if(queue.empty):
                 pass
                 #print('vazio')
             else:
                 print('passou')
                 operation_mode = queue.get()
+            '''
                 
             if(currentmillis2 - prevmillis2 > readinterval):
                 #faz requisicao pelos dados
@@ -182,6 +195,10 @@ def mainloop(stime,ftime,queue):
                 #proxima execução
                 prevmillis = currentmillis
 
+#inicia servidor assincrono
+server = Server('localhost', 8080)
+loop_thread = threading.Thread(target=asyncore.loop, name='AsyncoreLoop')
+
 #programa principal
 if __name__=='__main__':
 
@@ -189,7 +206,7 @@ if __name__=='__main__':
     if os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'WebSite.settings'):
         import django
         django.setup()
-        from WebSite.operation.models import Registers
+        from WebSite.operation.models import Registers, OperationMode
         from django.utils import timezone
     else:
         raise
@@ -202,6 +219,19 @@ if __name__=='__main__':
     prevmillis= millis()       #contador para solicitação de dados para o arduino
     prevmillis2 = prevmillis   #contador para envio do banco
 
+    loop_thread.daemon = True
+    loop_thread.start()
+    
+
+    strstatus = 'Servidor rodando'
+    print(strstatus)
+
+    #loop principal
+    mainloop(prevmillis,prevmillis2)
+
+
+    #abordagem multi processing
+    '''
     #cria uma queue para compartilhar variávies do processo
 
     queue = Queue()
@@ -209,6 +239,7 @@ if __name__=='__main__':
     p1.start()
     p2 = Process(target=mainloop,args=(prevmillis,prevmillis2,queue,))
     p2.start()
+    '''
     
     '''
     manager = Manager()
@@ -218,8 +249,7 @@ if __name__=='__main__':
     p2 = pool.apply_async(mainloop,args=(prevmillis,prevmillis2,q,))
     '''
 
-    strstatus = 'Servidor rodando'
-    print(strstatus)
+ 
     
 
 

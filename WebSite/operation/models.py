@@ -29,6 +29,7 @@ class Registers(models.Model):
     PumpStatus = models.BooleanField()
     HeaterStatus = models.BooleanField()
     ArduinoMode = models.BooleanField()
+    EmergencyMode = models.BooleanField()
     PumpSpeed = models.FloatField()
 
     class Meta:
@@ -51,6 +52,7 @@ class Registers(models.Model):
        data['PumpStatus'] = self.PumpStatus
        data['HeaterStatus'] = self.HeaterStatus
        data['ArduinoMode'] = self.ArduinoMode
+       data['EmergencyMode'] = self.EmergencyMode
        data['PumpSpeed'] = self.PumpSpeed
        return(data)
 

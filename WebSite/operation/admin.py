@@ -8,7 +8,8 @@ class DisplayAdmin(admin.ModelAdmin):
     search_fields = ['name', 'UE']
 
 class RegisterAdmin(admin.ModelAdmin):
-    list_display=['TimeStamp', 'Temp1', 'Temp2', 'Temp3', 'Temp4', 'HotFlow', 'ColdFlow', 'PumpStatus', 'HeaterStatus', 'ArduinoMode','PumpSpeed']
+    list_display=['TimeStamp', 'Temp1', 'Temp2', 'Temp3', 'Temp4', 'HotFlow', 
+    'ColdFlow', 'PumpStatus', 'HeaterStatus', 'ArduinoMode','EmergencyMode','PumpSpeed']
     search_fields = ['TimeStamp']
 
 admin.site.register(DataDisplay,DisplayAdmin)

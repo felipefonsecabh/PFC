@@ -28,7 +28,11 @@ def refresh(request):
 
     if request.is_ajax():
         reg = Registers.objects.latest('pk')
-        return JsonResponse(reg.serialize(),safe=False)
+        opmode = OperationMode.objects.latest('pk')
+        opdata = reg.serialize()
+        opdata['OpMode'] = opmode.OpMode
+
+        return JsonResponse(opdata,safe=False)
 
 @csrf_exempt
 def command(request):
