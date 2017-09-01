@@ -60,8 +60,10 @@ class OperationMode(models.Model):
     '''
     clase apenas para armazenar o modo de operação (local/remoto)
     usado para manter a consitência de multi-clients
+    e também para saber se o histórico de trend está sendo armazenado ou não
     '''
     OpMode = models.BooleanField()
+    TrendStarted = models.BooleanField()
     
 
 
