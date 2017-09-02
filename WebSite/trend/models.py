@@ -1,4 +1,5 @@
 from django.db import models
+import time
 
 # Create your models here.
 class TrendRegister(models.Model):
@@ -18,7 +19,9 @@ class TrendRegister(models.Model):
     
     def serialize(self):
         data = {}
-        data['TimeStamp'] = self.TimeStamp
+
+        data['TimeStamp'] = self.TimeStamp.timestamp()
+        data['StrTs'] = self.TimeStamp.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         data['Temp1'] = self.Temp1
         data['Temp2'] = self.Temp2
         data['Temp3'] = self.Temp3

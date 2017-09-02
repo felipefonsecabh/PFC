@@ -88,7 +88,11 @@
   font-size: 20px;
 }
 
-@media (max-width: 500px){
+#schart{
+  border: solid 1px red; 
+}
+
+@media screen and (max-width: 480px){
 
   .btn-responsive {
     white-space: normal !important;
@@ -101,4 +105,26 @@
   #SetM{
     margin-top: 20px;
   }
+
+#schart{
+  border: solid 1px blue;
+  width: 100;
 }
+
+}
+
+div.smoothie-chart-tooltip {
+  background: #444;
+  padding: 1em;
+  margin-top: 20px;
+  font-family: consolas;
+  color: white;
+  font-size: 10px;
+  pointer-events: none;
+}
+
+/*
+#schart{
+  border: solid 1px blue;  
+  width: 100%;
+}*/

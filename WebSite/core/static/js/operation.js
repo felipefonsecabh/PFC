@@ -232,7 +232,7 @@ $(document).ready(function(){
 
 	var gaugeChart = new JustGage({
 		id: "g1",
-		value: 50.5,
+		value: 0.0,
 		defaults:dflt
 	});
 

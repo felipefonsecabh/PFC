@@ -9,10 +9,58 @@
 
 {% block content %}
     <div class="container">
-        <div class="col-md-12">
-            <div id="area" class="epoch category10" style="height: 200px;"></div>
-            <button class="btn btn-primary" id="rf">Refresh</button>
+        <!--epoch-->
+        <!--
+        <div class="row">
+            <div class="col-md-12">
+                <div id="area" class="epoch category10" style="height: 200px;"></div>
+                <button class="btn btn-primary" id="rf">Refresh</button>
+            </div>
         </div>
+        -->
+
+        <!--plotly-->
+        <!--
+        <div class="row">
+            <div class="col-md-12">
+                <div id="chart"></div>
+            </div>
+        </div>-->
+
+        <!--smoothie-->
+    
+        
+        <div class='container-fluid' style='margin-bottom:20px;'>
+            <div class='legend'>
+                <span style='color: #900c3f; margin-right:10px;'>&#x25A0; Temp1</span>
+                <span style='color: #ffc300;'>&#x25A0; Temp2</span>
+            </div>
+            <canvas id="charttemp1" width="500" height="180"></canvas>
+        </div>
+
+        <div class='container-fluid' style='margin-bottom:20px;'>
+            <div class='legend'>
+                <span style='color: #010c5b; margin-right:10px;'>&#x25A0; Temp2</span>
+                <span style='color: #0fe5c2;'>&#x25A0; Temp3</span>
+            </div>
+            <canvas id="charttemp2" width="500" height="180"></canvas>
+        </div>
+
+        <div class='container-fluid' style='margin-bottom:20px;'>
+            <div class='legend'>
+                <span style='color: #2f4727; margin-right:10px;'>&#x25A0; HotFlow</span>
+                <span style='color: #42df10;'>&#x25A0; ColdFlow</span>
+            </div>
+            <canvas id="chartflows" width="500" height="180"></canvas>
+        </div>
+
+        <div class='container-fluid'>
+            <div class='legend'>
+                <span style='color: #142463;'>&#x25A0; PumpSpeed</span>
+            </div>
+            <canvas id="chartspeed" width="500" height="180"></canvas>
+        </div>
+
     </div>
 {% endblock content %}
 
@@ -21,5 +69,8 @@
     <!--O epoch não está funcionando com a última versão do d3 (v4)
     <script src="http://d3js.org/d3.v4.min.js" charset='utf-8'></script>-->
     <script src="{% static "js/epoch.min.js" %}"></script>
+    <script src="{% static "js/plotly-latest.min.js" %}"></script>
+    <script src="{% static "js/smoothie.js" %}"></script>
     <script src="{% static "js/trend.js" %}"></script>
+
 {% endblock js %}
