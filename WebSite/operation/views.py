@@ -31,12 +31,22 @@ def refresh(request):
         opmode = OperationMode.objects.latest('pk')
         opdata = reg.serialize()
         opdata['OpMode'] = opmode.OpMode
-
+        opdata['TrendStarted'] = opmode.TrendStarted
         return JsonResponse(opdata,safe=False)
 
 @csrf_exempt
 def command(request):
     if request.is_ajax():
         c.s.sendall(request.POST.get('command').encode('utf-8'))
+        msg = 'Sucesso'
+        return JsonResponse(msg,safe=False)
+
+@csrf_exempt
+def analogcommand(request):
+    if request.is_ajax():
+        speed = request.POST.get('speed')
+        jsoncmd  = '{"pump_speed": ' + speed +'}'
+        print(jsoncmd)
+        c.s.sendall(jsoncmd.encode('utf-8'))
         msg = 'Sucesso'
         return JsonResponse(msg,safe=False)

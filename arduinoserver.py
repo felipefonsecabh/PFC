@@ -14,11 +14,13 @@ import threading
 from multiprocessing import Process, Queue, Manager,Pool
 import asyncore
 import socket
+import json
 
 #variaveis
 start_time = datetime.now()
-readinterval = 100
-sendDBinterval =1500
+readinterval = 80
+sendDBinterval = 600
+sendTrendDBinterval = 400
 
 #0 para local - comandos via browser não são permitidos, 1 para remoto
 arduino_mode = 0   #dado que vem do arduino
@@ -30,6 +32,10 @@ operation_mode = 1   #dado que é enviado do browser, só faz sentido com arduin
 #dicionario que armazena a ultima informação recebida
 bstatus = 0
 lastdata = {}
+lasttrenddata = {}
+
+#informação se é para gravar dados do trend
+allow_store_trend_data = 0
 
 #bytechecksum para confirmação
 chksum = 15
@@ -63,12 +69,62 @@ def parseData(data):
         mydata['TimeStamp'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
         #pegar o modo do arduino
-        arduino_mode = mydata['ArduinoMode']      
+        arduino_mode = mydata['ArduinoMode']
+
+        trenddata = dict([(x, mydata[x]) for x in ['Temp1', 'Temp2', 'Temp3','Temp4','HotFlow','ColdFlow','PumpSpeed','TimeStamp']])  
+
         parseStatus = True
     else:
         parseStatus = False
 
-    return parseStatus, mydata
+    return parseStatus, mydata, trenddata
+
+def process_commands(data):
+    #necessário declarar como global, pois está alterando uma variavel dentro da thread
+    global operation_mode 
+    global allow_store_trend_data
+
+    if(data == b'7'): #set manual
+        operation_mode = 1
+        #atualizar o registro no ORM
+        obj = OperationMode.objects.latest('pk')
+        obj.OpMode = operation_mode
+        obj.save()
+
+    elif(data == b'8'): #set automatico
+        operation_mode = 0
+        #atualizar o registro no ORM
+        obj = OperationMode.objects.latest('pk')
+        obj.OpMode = operation_mode
+        obj.save()
+
+    elif(data == b'9'): #start TrendRegister
+        allow_store_trend_data = 1
+        obj = OperationMode.objects.latest('pk')
+        obj.TrendStarted = allow_store_trend_data
+        obj.save()
+
+    elif(data == b'A'): #stop TrendRegister
+        allow_store_trend_data = 0
+        obj = OperationMode.objects.latest('pk')
+        obj.TrendStarted = allow_store_trend_data
+        obj.save()
+
+    elif(data == b'B'): #clear TrendRegister
+        try:
+            tdata = TrendRegister.objects.all().delete()
+        except Exception as err:
+            print(str(err))
+
+    else: #comandos para enviar para o arduino
+        try:
+            bytescommand = pack('=cb',data,chksum)
+            bus.write_block_data(arduinoAddress,ord(data),list(bytescommand))
+        except Exception as err:
+            print(str(err))
+        finally:
+            pass         
+            #print(data)
 
 #classes para implmmentar o servidor assincrono
 class dataHandler(asyncore.dispatcher_with_send):
@@ -85,45 +141,31 @@ class dataHandler(asyncore.dispatcher_with_send):
     '''
 
     def handle_read(self):
-        #necessário declarar como global, pois está alterando uma variavel dentro da thread
-        global operation_mode 
-
+        
         data = self.recv(50)
 
         '''interpretar os comandos:
         operação: Ligar/Desligar Bomba, Ligar/Desligar Aquecedor, Alterar velocidade da bomba
         Modo: trocar de modo automático para remoto
-        Armazenamento: ativar ou desativar o armazenamento de dados para o trend
+        Armazenamento: ativar ou desativar o armazenamento de dados para o trend e
+        também apagar dados
         '''
-        if(data == b'7'):
-            operation_mode = 1
-            #atualizar o registro no ORM
-            obj = OperationMode.objects.latest('pk')
-            print(obj.OpMode)
-            obj.OpMode = operation_mode
-            obj.save()
-
-        elif(data == b'8'):
-            operation_mode = 0
-            #atualizar o registro no ORM
-            obj = OperationMode.objects.latest('pk')
-            print(obj.OpMode)
-            obj.OpMode = operation_mode
-            obj.save()
-
-        try:
-            bytescommand = pack('=cb',data,chksum)
-            bus.write_block_data(arduinoAddress,ord(data),list(bytescommand))
-        except Exception as err:
-            print(str(err))
-        finally:
-            pass
-            #print(data)
-
+        if len(data) < 2:  #comandos digitais
+            process_commands(data)
+        else: #comando analogico
+            try:
+                ld = json.loads(data.decode('utf-8'))
+                bytescommand = pack('f',ld['pump_speed'])
+                bus.write_block_data(arduinoAddress,53,list(bytescommand))
+                #print(list(bytescommand))
+            except Exception as err:
+                print(str(err))
+            finally:
+                pass
+                
 class Server(asyncore.dispatcher):
 
     #queue = None
-
     def __init__(self,host,port):
         asyncore.dispatcher.__init__(self)
         self.create_socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -140,17 +182,16 @@ class Server(asyncore.dispatcher):
             #print('Incoming connection from %s' %repr(addr))
             handler = dataHandler(sock)
 
-
-
 #classe para implementar a função principal
 
 def tcpserver(queue):
     server = Server('localhost',8080)
     asyncore.loop()
 
-def mainloop(stime,ftime):
+def mainloop(stime,ftime,ttime):
     prevmillis = stime
     prevmillis2 = ftime
+    prevmillis3 = ttime
     while True:
         try:
             currentmillis2 = millis()
@@ -163,7 +204,6 @@ def mainloop(stime,ftime):
                 print('passou')
                 operation_mode = queue.get()
             '''
-                
             if(currentmillis2 - prevmillis2 > readinterval):
                 #faz requisicao pelos dados
                 #print(operation_mode)
@@ -171,7 +211,7 @@ def mainloop(stime,ftime):
                 #efetua parse dos dados
                 data = unpack('6f3b',bytes(block))
                 #print(data)
-                bstatus, lastdata = parseData(data)
+                bstatus, lastdata, lasttrenddata = parseData(data)
                 #proxima execução
                 prevmillis2 = currentmillis2
 
@@ -182,9 +222,7 @@ def mainloop(stime,ftime):
             '''
             aqui deve-se processar os dados e enviar os comandos caso esteja em 
             modo automatico
-            '''
-
-                            
+            '''             
         finally:
             currentmillis = millis()
             if(currentmillis - prevmillis > sendDBinterval):
@@ -194,6 +232,18 @@ def mainloop(stime,ftime):
                 
                 #proxima execução
                 prevmillis = currentmillis
+            
+            currentmillis3 = millis()
+            if(currentmillis3 - prevmillis3 > sendTrendDBinterval): 
+                if(allow_store_trend_data):
+                    #envia dado para o banco de dados
+                    treg = TrendRegister(**lasttrenddata)
+                    treg.save()
+                    
+                    #próxima execução
+                    prevmillis3 = currentmillis3
+                else:
+                    pass
 
 #inicia servidor assincrono
 server = Server('localhost', 8080)
@@ -207,6 +257,7 @@ if __name__=='__main__':
         import django
         django.setup()
         from WebSite.operation.models import Registers, OperationMode
+        from WebSite.trend.models import TrendRegister
         from django.utils import timezone
     else:
         raise
@@ -227,7 +278,7 @@ if __name__=='__main__':
     print(strstatus)
 
     #loop principal
-    mainloop(prevmillis,prevmillis2)
+    mainloop(prevmillis,prevmillis2,prevmillis)
 
 
     #abordagem multi processing

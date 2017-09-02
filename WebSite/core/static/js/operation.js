@@ -1,4 +1,4 @@
-function refresh_function(){
+function refresh_function(gaugeChart){
 	$.ajax({
 		type: 'GET',
 		url: 'refresh',
@@ -89,6 +89,26 @@ function refresh_function(){
 				}
 
 			}
+			//atualizar o status dos botões de gerenciamento de dados do trend
+			if(data.TrendStarted){
+				//alert('iniciado');
+				if(!$('#start-trend').hasClass('disabled')){
+					$('#start-trend').addClass('disabled');
+				}
+				if($('#stop-trend').hasClass('disabled')){
+					$('#stop-trend').removeClass('disabled');
+				}
+				//alert($('#stop-trend').hasClass('disabled'));
+			}
+			else{
+				//alert('parado');
+				if($('#start-trend').hasClass('disabled')){
+					$('#start-trend').removeClass('disabled');
+				}
+				if(!$('#stop-trend').hasClass('disabled')){
+					$('#stop-trend').addClass('disabled');
+				}
+			}
 
 			if(data.HeaterStatus){
 				$('#hs').text('ON');
@@ -104,28 +124,9 @@ function refresh_function(){
 
 			}
 
-			//dados analogicos (circle progess bar)
-			$('#pb_speed_value').text(data.PumpSpeed.toFixed(1).replace('.',',') +'%');
-			
-			var pb_classes  = $('#pb_speed').attr('class').split(' ');
-
-			if($('#pb_speed').hasClass('over50')){
-				//alert(pb_classes[4]);
-				$('#pb_speed').removeClass(pb_classes[4]) 
-				if(data.PumpSpeed <= 50){
-					$('#pb_speed').removeClass('over50');
-				}
-				$('#pb_speed').addClass('p'+ parseInt(data.PumpSpeed));
-				//alert('p'+parseInt(data.PumpSpeed));
-			}
-			else{
-				//alert(pb_classes[2]);
-				$('#pb_speed').removeClass(pb_classes[2]);
-				if(data.PumpSpeed > 50){
-					$('#pb_speed').addClass('over50');
-				}
-				$('#pb_speed').addClass('p'+parseInt(data.PumpSpeed));
-			}	
+			//atualizar dados do gauge
+			//gaugeChart.update(data.PumpSpeed);
+			gaugeChart.refresh(data.PumpSpeed);
 		}
 	})
 }
@@ -178,12 +179,8 @@ function operation_process(data){
 	}
 }
 
-
 $(document).ready(function(){
 	
-	setInterval(refresh_function,1000);
-	//refresh_function();
-
 	//aqui embaixo setar as funções de comando
 	$('.commandbutton').click(function(){
 		data = {'command':$(this).data('target')};
@@ -196,13 +193,19 @@ $(document).ready(function(){
 
 	$('#sp_pumpspeed').on('slideStop',function(slideEvt){
 		//ajax code here
-
+		data = {'speed': slideEvt.value}
+		$.ajax({
+			type: 'POST',
+			url: 'analogcommand/',
+			data: data
+		});
 	});
 
 	//habilita o uso de confirmações para ações importantes
 	$('[data-toggle=confirmation]').confirmation({
 		rootSelector: '[data-toggle=confirmation]',
 	});
+
 
 	//retorno das confirmações para fazer as ações
 	$('.actions').on('confirmed.bs.confirmation',function(){
@@ -213,4 +216,26 @@ $(document).ready(function(){
 			data: data
 		});		
 	});
+
+	var dflt = {
+      min: 0,
+      max: 100,
+      donut: true,
+      gaugeWidthScale: 0.6,
+      counter: true,
+	  levelColors:['#167EB9'],
+	  decimals:1,
+      hideInnerShadow: true,
+	  symbol: "%",
+	  valueFontSize: "8px",
+    }
+
+	var gaugeChart = new JustGage({
+		id: "g1",
+		value: 50.5,
+		defaults:dflt
+	});
+
+	setInterval(refresh_function,600,gaugeChart);
 });
+

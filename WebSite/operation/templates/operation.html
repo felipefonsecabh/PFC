@@ -4,9 +4,8 @@
 
 <!--arquivos css necessários para abertura da página-->
 {% block css %}
-    <link rel="stylesheet" href="{% static "css/bootstrap-toggle.min.css" %}">
-    <link rel="stylesheet" href="{% static "css/css-circular-prog-bar.css" %}">
     <link rel="stylesheet" href="{% static "css/bootstrap-slider.min.css" %}">
+    <link rel="stylesheet" href="{% static "css/epoch.min.css" %}">
 {% endblock css %}
 
 {% block content %}
@@ -39,8 +38,8 @@
                         <ul class="dropdown-menu">
                             <li><a type="button" id="set-manual" class="btn btn-default actions modeactions {% if reg.ArduinoMode == 0 or op.OpMode == True %} disabled {% endif %}" data-toggle="confirmation" data-placement="left" data-action='7'> Set Manual</a></li>
                             <li><a type="button" id="set-auto" class="btn btn-default actions modeactions {% if reg.ArduinoMode == 0 or op.OpMode == False %} disabled {% endif %}" data-toggle="confirmation" data-placement="left" data-action="8"> Set Automatic</a></li>
-                            <li><a type="button" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="9"> Start Store Data </a></li>
-                            <li><a type="button" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="A"> Stop Store Data</a></li>
+                            <li><a type="button" id="start-trend" class="btn btn-default actions {% if op.TrendStarted %} disabled {% endif %}" data-toggle="confirmation"  data-placement="left" data-action="9"> Start Store Data </a></li>
+                            <li><a type="button" id="stop-trend" class="btn btn-default actions {% if not op.TrendStarted %} disabled {% endif %}" data-toggle="confirmation"  data-placement="left" data-action="A"> Stop Store Data</a></li>
                             <li><a type="button" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="B"> Clear Store Data</a></li>
                         </ul>
                 </div>
@@ -130,21 +129,16 @@
                             <!--comando-->
                             <button class="btn btn-primary commandbutton {% if reg.ArduinoMode == 0 or op.OpMode == 0 %} disabled {% endif %}"  id="pumpon" data-target="1">Ligar</button>
                             <button class="btn btn-primary commandbutton {% if reg.ArduinoMode == 0 or op.OpMode == 0 %} disabled {% endif %}" id="pumpoff" data-target="2">Desligar</button>
-                                
-                            <!--progress bar-->
-                            <div class="progress-circle {%if reg.getintspeed > 50 %} over50 {% endif %} p{{reg.getintspeed}}" id='pb_speed'>
-                                <span id="pb_speed_value">{{reg.PumpSpeed|floatformat:1}}%</span>
-                                <div class="left-half-clipper">
-                                    <div class="first50-bar"></div>
-                                    <div class="value-bar"></div>
-                                </div>
-                            </div>
-
+                            
+                            <!--gauge-->
+                            <div id="g1" class="gauge"></div>
+                            
                             <!--slider-->
                             <div>
                                 <input class="slidercmd" id="sp_pumpspeed" type="text" data-provide="slider" data-slider-min="0" data-slider-max="100" 
                                 data-slider-step="0.5" data-slider-enabled="{%if reg.ArduinoMode == 0 or op.OpMode == 0 %} false {% else %} true {% endif %}"  data-slider-value="{{reg.getintspeed}}"/>
                             </div>
+
                         </center>
                     </div>
                 </div>
@@ -164,16 +158,7 @@
 
                             <!--comando-->
                             <button class="btn btn-primary commandbutton {% if reg.ArduinoMode == 0 or op.OpMode == 0 %} disabled {% endif %}" id="heateron" data-target="3">Ligar</button>
-                            <button class="btn btn-primary commandbutton {% if reg.ArduinoMode == 0 or op.OpMode == 0 %} disabled {% endif %}" id="heateroff" data-target="4">Desligar</button>
-                                
-                            <!--progress bar (1ª lib) -->
-                            <div class="progress-circle {%if reg.getintspeed > 50 %} over50 {% endif %} p{{reg.getintspeed}}" >
-                                <span>{{reg.PumpSpeed|floatformat:1}}%</span>
-                                <div class="left-half-clipper">
-                                    <div class="first50-bar"></div>
-                                    <div class="value-bar circle-color"></div>
-                                </div>
-                            </div>                     
+                            <button class="btn btn-primary commandbutton {% if reg.ArduinoMode == 0 or op.OpMode == 0 %} disabled {% endif %}" id="heateroff" data-target="4">Desligar</button>                 
 
                             <!--slider-->
                             <div>
@@ -194,7 +179,8 @@
 <!--arquivos java script necessários para a página-->
 {% block js %}
     <script src="{% static "js/operation.js" %}"></script>
-    <script src="{% static "js/bootstrap-toggle.min.js" %}"></script>
     <script src="{% static "js/bootstrap-slider.min.js" %}"></script>
     <script src="{% static "js/bootstrap-confirmation.min.js" %}"></script>
+    <script src="{% static "js/raphael-2.1.4.min.js" %}"></script>
+    <script src="{% static "js/justgage.js" %}"></script>
 {% endblock js %}
