@@ -9,11 +9,24 @@ function getRandomValue(){
     return randomValue;
 }
 
+function refreshCharts(areaChartInstance){
+    //atualizar os gráficos aqui
+    $.ajax({
+        type: 'GET',
+        url: 'refresh',
+        success: function(data){
+            epochtime = int(time.mktime(data.TimeStamp.timetuple())*1000)
+            y = data.Temp1
+            areaChartInstance.push([{time:epochtime, y: y}]);
+        }
+    })
+}
+
 $(document).ready(function(){
     var chartData = [
         {
             label: 'A',
-            values: [{time: 1370044800, y:100}, {time: 1370044801, y:80}]
+            values: []
         }
     ];
     var areaChartInstance = $('#area').epoch({
@@ -22,12 +35,15 @@ $(document).ready(function(){
         axes: ['left','bottom']
     });
 
-    $('#rf').click(function(){
+    
+    /*$('#rf').click(function(){
         var time = getTimeValue();
         var y = getRandomValue();
         ret = areaChartInstance.push([{time: time, y: y}]);
         alert(ret);
-    });
+    });*/
+
+    setInterval(refreshCharts,400,areaChartInstance);
     
 });
 
