@@ -128,3 +128,7 @@ div.smoothie-chart-tooltip {
   border: solid 1px blue;  
   width: 100%;
 }*/
+
+#g1 text:nth-child(6) tspan{
+  font-size: 0.8em !important;  
+}

@@ -183,7 +183,7 @@ $(document).ready(function(){
 	
 	//aqui embaixo setar as funções de comando
 	$('.commandbutton').click(function(){
-		data = {'command':$(this).data('target')};
+		var data = {'command':$(this).data('target')};
 		$.ajax({
 			type: 'POST',
 			url: 'command/',
@@ -209,7 +209,7 @@ $(document).ready(function(){
 
 	//retorno das confirmações para fazer as ações
 	$('.actions').on('confirmed.bs.confirmation',function(){
-		data = {'command': $(this).data('action')};
+		var data = {'command': $(this).data('action')};
 		$.ajax({
 			type:'POST',
 			url: 'command/',

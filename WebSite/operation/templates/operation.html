@@ -41,6 +41,7 @@
                             <li><a type="button" id="start-trend" class="btn btn-default actions {% if op.TrendStarted %} disabled {% endif %}" data-toggle="confirmation"  data-placement="left" data-action="9"> Start Store Data </a></li>
                             <li><a type="button" id="stop-trend" class="btn btn-default actions {% if not op.TrendStarted %} disabled {% endif %}" data-toggle="confirmation"  data-placement="left" data-action="A"> Stop Store Data</a></li>
                             <li><a type="button" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="B"> Clear Store Data</a></li>
+                            <li><a type="button" href="{% url 'op:exportcsv' %}" id="export-csv" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="C"> Export CSV </a></li>
                         </ul>
                 </div>
         </div>
