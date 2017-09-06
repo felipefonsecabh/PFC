@@ -207,9 +207,9 @@ def mainloop(stime,ftime,ttime):
             if(currentmillis2 - prevmillis2 > readinterval):
                 #faz requisicao pelos dados
                 #print(operation_mode)
-                block = bus.read_i2c_block_data(arduinoAddress,6,27)
+                block = bus.read_i2c_block_data(arduinoAddress,6,30)
                 #efetua parse dos dados
-                data = unpack('6f3b',bytes(block))
+                data = unpack('7f2b',bytes(block))
                 #print(data)
                 bstatus, lastdata, lasttrenddata = parseData(data)
                 #proxima execução
