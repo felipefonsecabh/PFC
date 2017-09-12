@@ -18,9 +18,9 @@ import json
 
 #variaveis
 start_time = datetime.now()
-readinterval = 60
+readinterval = 100
 sendDBinterval = 600
-sendTrendDBinterval = 200
+sendTrendDBinterval = 300
 
 #0 para local - comandos via browser não são permitidos, 1 para remoto
 arduino_mode = 0   #dado que vem do arduino
@@ -76,6 +76,7 @@ def parseData(data):
         parseStatus = True
     else:
         parseStatus = False
+        print('Parse False')
 
     return parseStatus, mydata, trenddata
 
@@ -265,7 +266,7 @@ if __name__=='__main__':
 
     #o armazenamento de dados de trend sempre começa desabilitado
     opMode = OperationMode.objects.latest('pk')
-    opMode.TrendStarted  = 0
+    opMode.TrendStarted  = 0  #para começar habilitado basta trocar para 1
     opMode.save()
 
     #inicialização do i2c

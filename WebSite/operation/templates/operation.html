@@ -50,7 +50,7 @@
         <div class="row grp-displays">
 
             <div class='col-md-6'>
-                <div class="display-content">
+                <div class="display-content hot">
                     <div class="display-data">
                         <h3 class="text-center display-desc">{{dp_col.0.name}}
                             <span>:</span> <span class="text-center display-value" id="{{dp_col.0.name}}">{{reg.Temp1|floatformat:2}}</span><span class='display-unit'>  {{dp_col.0.UE}}</span>
@@ -60,19 +60,9 @@
             </div>
 
             <div class='col-md-6'>
-                <div class="display-content">
+                <div class="display-content cold">
                     <div class="display-data">
-                        <h3 class="text-center display-desc" >{{dp_col.1.name}}
-                            <span>:</span> <span class="text-center display-value" id="{{dp_col.1.name}}">{{reg.Temp2|floatformat:2}}</span><span class='display-unit'>  {{dp_col.1.UE}}</span>
-                        </h3>
-                    </div>
-                </div>
-            </div>
-
-            <div class='col-md-6'>
-                <div class="display-content">
-                    <div class="display-data">
-                        <h3 class="text-center display-desc">{{dp_col.2.name}}
+                        <h3 class="text-center display-desc" >{{dp_col.2.name}}
                             <span>:</span> <span class="text-center display-value" id="{{dp_col.2.name}}">{{reg.Temp3|floatformat:2}}</span><span class='display-unit'>  {{dp_col.2.UE}}</span>
                         </h3>
                     </div>
@@ -80,7 +70,17 @@
             </div>
 
             <div class='col-md-6'>
-                <div class="display-content">
+                <div class="display-content hot">
+                    <div class="display-data">
+                        <h3 class="text-center display-desc">{{dp_col.1.name}}
+                            <span>:</span> <span class="text-center display-value" id="{{dp_col.1.name}}">{{reg.Temp2|floatformat:2}}</span><span class='display-unit'>  {{dp_col.1.UE}}</span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class='col-md-6'>
+                <div class="display-content cold">
                     <div class="display-data">
                         <h3 class="text-center display-desc">{{dp_col.3.name}}
                             <span>:</span> <span class="text-center display-value" id="{{dp_col.3.name}}">{{reg.Temp4|floatformat:2}}</span><span class='display-unit'>  {{dp_col.3.UE}}</span>
@@ -90,20 +90,20 @@
             </div>
 
             <div class='col-md-6'>
-                <div class="display-content">
+                <div class="display-content hot">
                     <div class="display-data">
-                        <h3 class="text-center display-desc">{{dp_col.4.name}}
-                            <span>:</span> <span class="text-center display-value" id="{{dp_col.4.name}}">{{reg.HotFlow|floatformat:2}}</span><span class='display-unit'>  {{dp_col.4.UE}}</span>
+                        <h3 class="text-center display-desc">{{dp_col.5.name}}
+                            <span>:</span> <span class="text-center display-value" id="{{dp_col.5.name}}">{{reg.HotFlow|floatformat:2}}</span><span class='display-unit'>  {{dp_col.5.UE}}</span>
                         </h3>
                     </div>
                 </div>
             </div>
 
             <div class='col-md-6'>
-                <div class="display-content">
+                <div class="display-content cold">
                     <div class="display-data">
-                        <h3 class="text-center display-desc">{{dp_col.5.name}}
-                            <span>:</span> <span class="text-center display-value" id="{{dp_col.5.name}}">{{reg.ColdFlow|floatformat:2}}</span><span class='display-unit'>  {{dp_col.5.UE}}</span>
+                        <h3 class="text-center display-desc">{{dp_col.4.name}}
+                            <span>:</span> <span class="text-center display-value" id="{{dp_col.4.name}}">{{reg.ColdFlow|floatformat:2}}</span><span class='display-unit'>  {{dp_col.4.UE}}</span>
                         </h3>
                     </div>
                 </div>
@@ -116,7 +116,7 @@
         <div class="row">
 
             <div class="col-md-6 col-sm-6 grp-control" >
-                <div class="panel panel-primary">
+                <div class="panel panel-custom">
                     <div class="panel-heading">
                         <h3 class="panel-title text-center">Bomba</h3>
                     </div>

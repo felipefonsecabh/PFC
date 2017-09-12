@@ -5,12 +5,12 @@ function refresh_function(gaugeChart){
 		success: function(data){
 
 			//atualizar os dados dos displays
-			$('#Temp1').text(data.Temp1.toFixed(2).replace('.',','));
-			$('#Temp2').text(data.Temp2.toFixed(2).replace('.',','));
-			$('#Temp3').text(data.Temp3.toFixed(2).replace('.',','));
-			$('#Temp4').text(data.Temp4.toFixed(2).replace('.',','));
-			$('#HotFlow').text(data.HotFlow.toFixed(2).replace('.',','));
-			$('#ColdFlow').text(data.ColdFlow.toFixed(2).replace('.',','));
+			$('#TempA').text(data.Temp1.toFixed(2).replace('.',','));
+			$('#TempB').text(data.Temp2.toFixed(2).replace('.',','));
+			$('#TempC').text(data.Temp3.toFixed(2).replace('.',','));
+			$('#TempD').text(data.Temp4.toFixed(2).replace('.',','));
+			$('#Vazao_Quente').text(data.HotFlow.toFixed(2).replace('.',','));
+			$('#Vazao_Fria').text(data.ColdFlow.toFixed(2).replace('.',','));
 
 			//atualizar os dados dos labels de modo de operação
 
@@ -138,8 +138,7 @@ function disable_commands(){
 	$('.slidercmd').slider("disable");
 	if(!$('.commandbutton').hasClass("disabled")){
 		$('.commandbutton').addClass('disabled');
-	}
-		
+	}		
 }
 
 function enable_commands(){
@@ -182,13 +181,15 @@ function operation_process(data){
 $(document).ready(function(){
 	
 	//aqui embaixo setar as funções de comando
-	$('.commandbutton').click(function(){
-		var data = {'command':$(this).data('target')};
-		$.ajax({
-			type: 'POST',
-			url: 'command/',
-			data: data
-		})
+	$('.commandbutton').on('click',function(){
+		if(!$(this).hasClass('disabled')){
+			var data = {'command':$(this).data('target')};
+			$.ajax({
+				type: 'POST',
+				url: 'command/',
+				data: data
+			});
+		}
 	});
 
 	$('#sp_pumpspeed').on('slideStop',function(slideEvt){
