@@ -8,17 +8,17 @@ from datetime import timedelta
 from threading import Timer
 import os
 import sys
-from smbus import SMBus
 from struct import pack, unpack
 import threading
 from multiprocessing import Process, Queue, Manager,Pool
 import asyncore
 import socket
 import json
+import serial
 
 #variaveis
 start_time = datetime.now()
-readinterval = 100
+readinterval = 1000
 sendDBinterval = 600
 sendTrendDBinterval = 300
 
@@ -51,34 +51,43 @@ def millis():
 def getbit(data,index):
     return(data & (1<<index)!=0)
 
+def config_serial(ser):
+    #ser.port = "/dev/ttyUSBX" -> Linux // COMX -> Windows
+    ser.port = "COM6"
+    ser.baudrate = 115200
+    ser.bytesize = serial.EIGHTBITS #number of bits per bytes
+    ser.parity = serial.PARITY_NONE #set parity check: no parity
+    ser.stopbits = serial.STOPBITS_ONE #number of stop bits
+    #ser.timeout = None          #block read
+    ser.timeout = 0.3            #non-block read
+    #ser.timeout = 2              #timeout block read
+    ser.xonxoff = False     #disable software flow control
+    ser.rtscts = False     #disable hardware (RTS/CTS) flow control
+    ser.dsrdtr = False       #disable hardware (DSR/DTR) flow control
+    ser.writeTimeout = 1     #timeout for write
+
 def parseData(data):
     mydata = {}
     
-    if data[8] == 27:
-        mydata['Temp1'] = data[0]
-        mydata['Temp2'] = data[1]
-        mydata['Temp3'] = data[2]
-        mydata['Temp4'] = data[3]
-        mydata['HotFlow'] = data[4]
-        mydata['ColdFlow'] = data[5]
-        mydata['PumpSpeed'] = data[6]
-        mydata['PumpStatus'] = getbit(data[7],0)
-        mydata['HeaterStatus'] = getbit(data[7],1)
-        mydata['ArduinoMode'] = getbit(data[7],2)
-        mydata['EmergencyMode'] = getbit(data[7],3)
-        mydata['TimeStamp'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+    mydata['Temp1'] = data["temps"][0]
+    mydata['Temp2'] = data["temps"][1]
+    mydata['Temp3'] = data["temps"][2]
+    mydata['Temp4'] = data["temps"][3]
+    mydata['HotFlow'] = data["HotFlow"]
+    mydata['ColdFlow'] = data["ColdFlow"]
+    mydata['PumpSpeed'] = data["PumpSpeed"]
+    mydata['PumpStatus'] = getbit(data["bstatus"],0)
+    mydata['HeaterStatus'] = getbit(data["bstatus"],1)
+    mydata['ArduinoMode'] = getbit(data["bstatus"],2)
+    mydata['EmergencyMode'] = getbit(data["bstatus"],3)
+    mydata['TimeStamp'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
-        #pegar o modo do arduino
-        arduino_mode = mydata['ArduinoMode']
+    #pegar o modo do arduino
+    arduino_mode = mydata['ArduinoMode']
 
-        trenddata = dict([(x, mydata[x]) for x in ['Temp1', 'Temp2', 'Temp3','Temp4','HotFlow','ColdFlow','PumpSpeed','TimeStamp']])  
+    trenddata = dict([(x, mydata[x]) for x in ['Temp1', 'Temp2', 'Temp3','Temp4','HotFlow','ColdFlow','PumpSpeed','TimeStamp']])  
 
-        parseStatus = True
-    else:
-        parseStatus = False
-        print('Parse False')
-
-    return parseStatus, mydata, trenddata
+    return mydata, trenddata
 
 def process_commands(data):
     #necessário declarar como global, pois está alterando uma variavel dentro da thread
@@ -119,8 +128,7 @@ def process_commands(data):
 
     else: #comandos para enviar para o arduino
         try:
-            bytescommand = pack('=cb',data,chksum)
-            bus.write_block_data(arduinoAddress,ord(data),list(bytescommand))
+            ser.write(data)
         except Exception as err:
             print(str(err))
         finally:
@@ -155,10 +163,10 @@ class dataHandler(asyncore.dispatcher_with_send):
             process_commands(data)
         else: #comando analogico
             try:
-                ld = json.loads(data.decode('utf-8'))
-                bytescommand = pack('f',ld['pump_speed'])
-                bus.write_block_data(arduinoAddress,53,list(bytescommand))
-                #print(list(bytescommand))
+                #monta o pacote de comando de atualização da velocidade
+                strcomand = '5' + data.decode('utf-8') + '\n'
+                #print(strcomand)
+                ser.write(strcomand.encode('ascii'));              
             except Exception as err:
                 print(str(err))
             finally:
@@ -197,22 +205,15 @@ def mainloop(stime,ftime,ttime):
         try:
             currentmillis2 = millis()
 
-            '''
-            if(queue.empty):
-                pass
-                #print('vazio')
-            else:
-                print('passou')
-                operation_mode = queue.get()
-            '''
             if(currentmillis2 - prevmillis2 > readinterval):
                 #faz requisicao pelos dados
                 #print(operation_mode)
-                block = bus.read_i2c_block_data(arduinoAddress,6,30)
-                #efetua parse dos dados
-                data = unpack('7f2b',bytes(block))
+                ser.write('6'.encode('ascii'))
+                strdata = ser.readline()
+                #conversão de uma string em um objeto json
+                data = json.loads(strdata)
                 #print(data)
-                bstatus, lastdata, lasttrenddata = parseData(data)
+                lastdata, lasttrenddata = parseData(data)
                 #proxima execução
                 prevmillis2 = currentmillis2
 
@@ -225,6 +226,7 @@ def mainloop(stime,ftime,ttime):
             modo automatico
             '''             
         finally:
+            '''
             currentmillis = millis()
             if(currentmillis - prevmillis > sendDBinterval):
                 #envia dado para o banco de dados (lastdata contém últimos dados válidos)
@@ -245,6 +247,8 @@ def mainloop(stime,ftime,ttime):
                     prevmillis3 = currentmillis3
                 else:
                     pass
+            '''
+            pass
 
 #inicia servidor assincrono
 server = Server('localhost', 8080)
@@ -269,9 +273,16 @@ if __name__=='__main__':
     opMode.TrendStarted  = 0  #para começar habilitado basta trocar para 1
     opMode.save()
 
-    #inicialização do i2c
-    bus = SMBus(1)
-    arduinoAddress = 12
+    #inicialização da porta serial
+    ser = serial.Serial()
+    config_serial(ser)
+    try:
+        ser.open()
+    except Exception as err:
+        print(str(err))
+    finally:
+        pass
+
 
     prevmillis= millis()       #contador para solicitação de dados para o arduino
     prevmillis2 = prevmillis   #contador para envio do banco
