@@ -18,7 +18,7 @@ import serial
 
 #variaveis
 start_time = datetime.now()
-readinterval = 1000
+readinterval = 200
 sendDBinterval = 600
 sendTrendDBinterval = 300
 
@@ -52,8 +52,8 @@ def getbit(data,index):
     return(data & (1<<index)!=0)
 
 def config_serial(ser):
-    #ser.port = "/dev/ttyUSBX" -> Linux // COMX -> Windows
-    ser.port = "COM6"
+    #ser.port = "/dev/ttyACM0" -> Rpi // COMX -> Windows
+    ser.port = "/dev/ttyACM0"
     ser.baudrate = 115200
     ser.bytesize = serial.EIGHTBITS #number of bits per bytes
     ser.parity = serial.PARITY_NONE #set parity check: no parity
@@ -86,7 +86,6 @@ def parseData(data):
     arduino_mode = mydata['ArduinoMode']
 
     trenddata = dict([(x, mydata[x]) for x in ['Temp1', 'Temp2', 'Temp3','Temp4','HotFlow','ColdFlow','PumpSpeed','TimeStamp']])  
-
     return mydata, trenddata
 
 def process_commands(data):
@@ -137,20 +136,8 @@ def process_commands(data):
 
 #classes para implmmentar o servidor assincrono
 class dataHandler(asyncore.dispatcher_with_send):
-    
-    '''
-    def __init__(self,sock, addr,queue,server):
-        self.SERVER = server
-        self.queue = queue
-        self.sock = sock
-        self.CA = addr
-        self.DATA =''
-        self.out_buffer =''
-        asyncore.dispatcher.__init__(self,sock)
-    '''
 
-    def handle_read(self):
-        
+    def handle_read(self):      
         data = self.recv(50)
 
         '''interpretar os comandos:
@@ -211,7 +198,7 @@ def mainloop(stime,ftime,ttime):
                 ser.write('6'.encode('ascii'))
                 strdata = ser.readline()
                 #conversão de uma string em um objeto json
-                data = json.loads(strdata)
+                data = json.loads(strdata.decode('utf-8'))
                 #print(data)
                 lastdata, lasttrenddata = parseData(data)
                 #proxima execução
@@ -226,7 +213,6 @@ def mainloop(stime,ftime,ttime):
             modo automatico
             '''             
         finally:
-            '''
             currentmillis = millis()
             if(currentmillis - prevmillis > sendDBinterval):
                 #envia dado para o banco de dados (lastdata contém últimos dados válidos)
@@ -247,8 +233,6 @@ def mainloop(stime,ftime,ttime):
                     prevmillis3 = currentmillis3
                 else:
                     pass
-            '''
-            pass
 
 #inicia servidor assincrono
 server = Server('localhost', 8080)
