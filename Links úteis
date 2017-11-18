@@ -13,3 +13,6 @@ https://realpython.com/blog/python/django-and-ajax-form-submissions/
 //comando para deletar todos os objetos
 Registers.objects.all().delete()
 
+//matar um processo específico em determinada porta
+fuser 8080/tcp
+fuser -k 8080/tcp

@@ -92,11 +92,11 @@ function refreshCharts(){
 
 function setoptions(minVal,maxVal){
     var options = {
-        millisPerPixel:51,
+        millisPerPixel:200,
         //maxValueScale:1.40,
         //minValueScale:1.37,
         interpolation:'linear',
-        scaleSmoothing:0.035,
+        scaleSmoothing:0.165,
         grid:{
             fillStyle:'#ffffff',
             strokeStyle:'rgba(119,119,119,0.90)',
@@ -148,10 +148,10 @@ $(document).ready(function(){
     }],layout);
     */
 
-    var smoothie1 = new SmoothieChart(setoptions(-10,40));
-    var smoothie2 = new SmoothieChart(setoptions(0,30));
+    var smoothie1 = new SmoothieChart(setoptions(0,60));
+    var smoothie2 = new SmoothieChart(setoptions(0,50));
     var smoothie3 = new SmoothieChart(setoptions(0,30));
-    var smoothie4 = new SmoothieChart(setoptions(0,100));
+    var smoothie4 = new SmoothieChart(setoptions(0,110));
 
     //temperaturas quentes
     smoothie1.addTimeSeries(Temp1,{lineWidth:2,strokeStyle:'#900c3f'});

@@ -22,13 +22,14 @@
                                 {% if reg.EmergencyMode %} Emergência {% else %} {% if reg.ArduinoMode %}Remoto {% else %} Local {% endif %} {% endif %}</span>
                         </h2>
                     </div>
+                    <!--
                     <div class="col-xs-6">
                         <h2>
                             <span class="text-center" style="font-size:14px;">Operation Mode</span>
-                            <!--este campo é inicializado por java script -->
+                            {# este campo é inicializado por java script #}
                             <span id="operation-mode" class="label label-info"> {%if op.OpMode == 0 %} Automático {% else %} Manual {% endif %} </span>
                         </h2>
-                    </div>
+                    </div> -->
                 </center>
             </div>
 
@@ -36,11 +37,11 @@
                     <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Actions
                         <span class="caret"></span></button>
                         <ul class="dropdown-menu">
-                            <li><a type="button" id="set-manual" class="btn btn-default actions modeactions {% if reg.ArduinoMode == 0 or op.OpMode == True %} disabled {% endif %}" data-toggle="confirmation" data-placement="left" data-action='7'> Set Manual</a></li>
-                            <li><a type="button" id="set-auto" class="btn btn-default actions modeactions {% if reg.ArduinoMode == 0 or op.OpMode == False %} disabled {% endif %}" data-toggle="confirmation" data-placement="left" data-action="8"> Set Automatic</a></li>
-                            <li><a type="button" id="start-trend" class="btn btn-default actions {% if op.TrendStarted %} disabled {% endif %}" data-toggle="confirmation"  data-placement="left" data-action="9"> Start Store Data </a></li>
-                            <li><a type="button" id="stop-trend" class="btn btn-default actions {% if not op.TrendStarted %} disabled {% endif %}" data-toggle="confirmation"  data-placement="left" data-action="A"> Stop Store Data</a></li>
-                            <li><a type="button" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="B"> Clear Store Data</a></li>
+                            <!-- <li><a type="button" id="set-manual" class="btn btn-default actions modeactions {% if reg.ArduinoMode == 0 or op.OpMode == True %} disabled {% endif %}" data-toggle="confirmation" data-placement="left" data-action='A'> Set Manual</a></li>
+                            <li><a type="button" id="set-auto" class="btn btn-default actions modeactions {% if reg.ArduinoMode == 0 or op.OpMode == False %} disabled {% endif %}" data-toggle="confirmation" data-placement="left" data-action="B"> Set Automatic</a></li>-->
+                            <li><a type="button" id="start-trend" class="btn btn-default actions {% if op.TrendStarted %} disabled {% endif %}" data-toggle="confirmation"  data-placement="left" data-action="7"> Start Store Data </a></li>
+                            <li><a type="button" id="stop-trend" class="btn btn-default actions {% if not op.TrendStarted %} disabled {% endif %}" data-toggle="confirmation"  data-placement="left" data-action="8"> Stop Store Data</a></li>
+                            <li><a type="button" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="9"> Clear Store Data</a></li>
                             <li><a type="button" href="{% url 'op:exportcsv' %}" id="export-csv" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="C"> Export CSV </a></li>
                         </ul>
                 </div>

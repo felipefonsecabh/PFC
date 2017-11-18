@@ -18,9 +18,9 @@ import json
 
 #variaveis
 start_time = datetime.now()
-readinterval = 100
-sendDBinterval = 600
-sendTrendDBinterval = 300
+readinterval = 300
+sendDBinterval = 500
+sendTrendDBinterval = 500
 
 #0 para local - comandos via browser não são permitidos, 1 para remoto
 arduino_mode = 0   #dado que vem do arduino
@@ -33,6 +33,8 @@ operation_mode = 1   #dado que é enviado do browser, só faz sentido com arduin
 bstatus = 0
 lastdata = {}
 lasttrenddata = {}
+lastvaliddata = {}
+lastvalidtrenddata = {}
 
 #informação se é para gravar dados do trend
 allow_store_trend_data = 0
@@ -43,6 +45,20 @@ chksum = 15
 #variavel para declarar uma tupla vazia
 
 #funções auxiliares
+def initialize():
+    lastdata['Temp1'] = 0
+    lastdata['Temp2'] = 0
+    lastdata['Temp3'] = 0
+    lastdata['Temp4'] = 0
+    lastdata['HotFlow'] = 0
+    lastdata['ColdFlow'] = 0
+    lastdata['PumpSpeed'] = 0
+    lastdata['PumpStatus'] = 0
+    lastdata['HeaterStatus'] = 0
+    lastdata['ArduinoMode'] = 0
+    lastdata['EmergencyMode'] = 0
+    lastdata['TimeStamp'] = 0
+
 def millis():
     dt = datetime.now()-start_time
     ms = (dt.days*24*60*60 + dt.seconds)*1000+dt.microseconds / 1000.0  
@@ -57,8 +73,8 @@ def parseData(data):
     if data[8] == 27:
         mydata['Temp1'] = data[0]
         mydata['Temp2'] = data[1]
-        mydata['Temp3'] = data[2]
-        mydata['Temp4'] = data[3]
+        mydata['Temp3'] = data[3]
+        mydata['Temp4'] = data[2]
         mydata['HotFlow'] = data[4]
         mydata['ColdFlow'] = data[5]
         mydata['PumpSpeed'] = data[6]
@@ -70,11 +86,13 @@ def parseData(data):
 
         #pegar o modo do arduino
         arduino_mode = mydata['ArduinoMode']
-
+        #lastvaliddata = mydata
         trenddata = dict([(x, mydata[x]) for x in ['Temp1', 'Temp2', 'Temp3','Temp4','HotFlow','ColdFlow','PumpSpeed','TimeStamp']])  
-
+        #lastvalidtrenddata = trenddata
         parseStatus = True
     else:
+        mydata = 'error'
+        trenddata = 'error'
         parseStatus = False
         print('Parse False')
 
@@ -85,33 +103,20 @@ def process_commands(data):
     global operation_mode 
     global allow_store_trend_data
 
-    if(data == b'7'): #set manual
-        operation_mode = 1
-        #atualizar o registro no ORM
-        obj = OperationMode.objects.latest('pk')
-        obj.OpMode = operation_mode
-        obj.save()
-
-    elif(data == b'8'): #set automatico
-        operation_mode = 0
-        #atualizar o registro no ORM
-        obj = OperationMode.objects.latest('pk')
-        obj.OpMode = operation_mode
-        obj.save()
-
-    elif(data == b'9'): #start TrendRegister
+    #print(type(data))
+    if(data == b'7'): #start TrendRegister
         allow_store_trend_data = 1
         obj = OperationMode.objects.latest('pk')
         obj.TrendStarted = allow_store_trend_data
         obj.save()
 
-    elif(data == b'A'): #stop TrendRegister
+    elif(data == b'8'): #stop TrendRegister
         allow_store_trend_data = 0
         obj = OperationMode.objects.latest('pk')
         obj.TrendStarted = allow_store_trend_data
         obj.save()
 
-    elif(data == b'B'): #clear TrendRegister
+    elif(data == b'9'): #clear TrendRegister
         try:
             tdata = TrendRegister.objects.all().delete()
         except Exception as err:
@@ -126,6 +131,22 @@ def process_commands(data):
         finally:
             pass         
             #print(data)
+    
+    ''' o modo manual e automatico não está implementado ainda
+    elif(data == b'A'): #set manual
+        operation_mode = 1
+        #atualizar o registro no ORM
+        obj = OperationMode.objects.latest('pk')
+        obj.OpMode = operation_mode
+        obj.save()
+
+    elif(data == b'B'): #set automatico
+        operation_mode = 0
+        #atualizar o registro no ORM
+        obj = OperationMode.objects.latest('pk')
+        obj.OpMode = operation_mode
+        obj.save()
+    '''
 
 #classes para implmmentar o servidor assincrono
 class dataHandler(asyncore.dispatcher_with_send):
@@ -208,11 +229,15 @@ def mainloop(stime,ftime,ttime):
             if(currentmillis2 - prevmillis2 > readinterval):
                 #faz requisicao pelos dados
                 #print(operation_mode)
-                block = bus.read_i2c_block_data(arduinoAddress,6,30)
+                block = bus.read_i2c_block_data(arduinoAddress,54,30)
                 #efetua parse dos dados
+                #print(block)
                 data = unpack('7f2b',bytes(block))
                 #print(data)
-                bstatus, lastdata, lasttrenddata = parseData(data)
+                bstatus, data, trendata = parseData(data)
+                if(bstatus):
+                        lastdata = data
+                        lasttrenddata = trendata
                 #proxima execução
                 prevmillis2 = currentmillis2
 
@@ -272,6 +297,8 @@ if __name__=='__main__':
     #inicialização do i2c
     bus = SMBus(1)
     arduinoAddress = 12
+
+    initialize()
 
     prevmillis= millis()       #contador para solicitação de dados para o arduino
     prevmillis2 = prevmillis   #contador para envio do banco
