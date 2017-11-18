@@ -85,7 +85,7 @@ def parseData(data):
     mydata = {}
     
     if data[8] == 27:
-
+        global ReadingErrors
         #Filtrar Spikes
         #SpikeFilter(data)
 
@@ -103,7 +103,7 @@ def parseData(data):
         mydata['TimeStamp'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         #pegar o modo do arduino
         arduino_mode = mydata['ArduinoMode']
-
+    
         trenddata = dict([(x, mydata[x]) for x in ['Temp1', 'Temp2', 'Temp3','Temp4','HotFlow','ColdFlow','PumpSpeed','TimeStamp']])  
         parseStatus = True
     else:
@@ -111,7 +111,7 @@ def parseData(data):
         trenddata = 'error'
         parseStatus = False
         ReadingErrors = ReadingErrors + 1
-        print('Reading Errors: %d',ReadingErrors)
+        print('Reading Errors: %f',ReadingErrors)
 
     return parseStatus, mydata, trenddata
 
@@ -128,16 +128,16 @@ def SpikeFilter(data):
     #filtro para a vazao quente
     if(data[4]<0):
         SpikeErrors = SpikeErrors + 1
-    elif(abs(databuffer[4] - data[4]) > 5) #spike
+    elif(abs(databuffer[4] - data[4]) > 5): #spike
         SpikeErrors = SpikeErrors + 1
-    else # normal
+    else: # normal
         databuffer[4] = data[4]
 
     if(data[5]<0):
         SpikeErrors = SpikeErrors + 1
-    elif(abs(databuffer[5] - data[5]) > 4) #spike
+    elif(abs(databuffer[5] - data[5]) > 4): #spike
         SpikeErrors = SpikeErrors + 1
-    else # normal
+    else: # normal
         databuffer[5] = data[5]
     
     #filtro para a vazao fria
@@ -195,13 +195,13 @@ def process_commands(data):
 #classes para implmmentar o servidor assincrono
 class dataHandler(asyncore.dispatcher_with_send):
     
-        def handle_read(self):
+    def handle_read(self):
 
         #deve-se declarar como global porque está alterando variável de outra thread
         global start_command_time
         global result_command_time 
         
-        start_command_time = timeit.default__timer()
+        start_command_time = timeit.default_timer()
         data = self.recv(50)
 
         '''interpretar os comandos:
@@ -212,13 +212,14 @@ class dataHandler(asyncore.dispatcher_with_send):
         '''
         if len(data) < 2:  #comandos digitais
             process_commands(data)
-            result_command_time = timeit.default_timer()
+            result_command_time = timeit.default_timer() - start_command_time
         else: #comando analogico
             try:
                 ld = json.loads(data.decode('utf-8'))
                 bytescommand = pack('f',ld['pump_speed'])
                 bus.write_block_data(arduinoAddress,53,list(bytescommand))
-                result_command_time = timeit.default_timer()
+                result_command_time = timeit.default_timer() - start_command_time
+                print(result_command_time)
                 #print(list(bytescommand))
             except Exception as err:
                 print(str(err))
@@ -258,34 +259,37 @@ def mainloop(initialtime):
             currentmillis2 = millis()
 
             if(currentmillis2 - prevmillis2 > readinterval):
-                #faz requisicao pelos dados
-                #print(operation_mode)
+                
+                #proxima execução
+                prevmillis2 = currentmillis2
 
+                #temporizador
                 start_read_time = timeit.default_timer()
+
+                #faz requisicao pelos dados
                 block = bus.read_i2c_block_data(arduinoAddress,54,30)
                 #efetua parse dos dados
                 #print(block)
                 data = unpack('7f2b',bytes(block))
                 #print(data)
                 bstatus, data, trendata = parseData(data)
-                result_read_time = timeit.default_timer - start_read_time
+                #print(data)
+                result_read_time = timeit.default_timer() - start_read_time
+                #print(result_read_time)
                 if(bstatus):
                         lastdata = data
                         lasttrenddata = trendata
-                #proxima execução
-                prevmillis2 = currentmillis2
-
         except Exception as err:
             print(str(err))            
         finally:
             currentmillis = millis()
             if(currentmillis - prevmillis > sendDBinterval):
                 #envia dado para o banco de dados (lastdata contém últimos dados válidos)
-                start_store1_time = timeit.default__timer()
+                start_store1_time = timeit.default_timer()
                 reg = Registers(**lastdata)
                 reg.save()
-                result_store1_time = timeit.default__timer() -start_store1_time
-                
+                result_store1_time = timeit.default_timer() -start_store1_time
+                #print(result_store1_time)
                 #proxima execução
                 prevmillis = currentmillis
             
@@ -294,11 +298,11 @@ def mainloop(initialtime):
                 
                 if(allow_store_trend_data):
                     #envia dado para o banco de dados
-                    start_store2_time = timeit.default__timer()
+                    start_store2_time = timeit.default_timer()
                     treg = TrendRegister(**lasttrenddata)
                     treg.save()
-                    result_store2_time = timeit.default__timer() - start_store2_time
-                    
+                    result_store2_time = timeit.default_timer() - start_store2_time
+                    print(result_command_time)
                     #próxima execução
                     prevmillis3 = currentmillis3
                 else:
