@@ -15,6 +15,7 @@ from multiprocessing import Process, Queue, Manager,Pool
 import asyncore
 import socket
 import json
+import timeit
 
 #variaveis
 start_time = datetime.now()
@@ -29,12 +30,23 @@ arduino_mode = 0   #dado que vem do arduino
 operation_mode = 1   #dado que é enviado do browser, só faz sentido com arduino_mode em remoto
                    #começa com 1 indicando que a operação começa manual
 
+#temporizadores para medição de desempenho
+start_read_time = 0
+result_read_time = 0
+start_store1_time = 0
+result_store1_time = 0
+start_store2_time = 0
+result_store2_time = 0
+start_command_time = 0
+result_command_time = 0
+
 #dicionario que armazena a ultima informação recebida
 bstatus = 0
 lastdata = {}
 lasttrenddata = {}
 lastvaliddata = {}
 lastvalidtrenddata = {}
+databuffer = [0] * 6
 
 #informação se é para gravar dados do trend
 allow_store_trend_data = 0
@@ -42,7 +54,9 @@ allow_store_trend_data = 0
 #bytechecksum para confirmação
 chksum = 15
 
-#variavel para declarar uma tupla vazia
+#variável para armazenar o númmero de erros de leitura
+ReadingErrors = 0
+SpikeErrors = 0
 
 #funções auxiliares
 def initialize():
@@ -71,39 +85,69 @@ def parseData(data):
     mydata = {}
     
     if data[8] == 27:
-        mydata['Temp1'] = data[0]
-        mydata['Temp2'] = data[1]
-        mydata['Temp3'] = data[3]
-        mydata['Temp4'] = data[2]
-        mydata['HotFlow'] = data[4]
-        mydata['ColdFlow'] = data[5]
+
+        #Filtrar Spikes
+        #SpikeFilter(data)
+
+        mydata['Temp1'] = data[0]     #databuffer[0]
+        mydata['Temp2'] = data[1]     #databuffer[1]  
+        mydata['Temp3'] = data[3]     #databuffer[2]
+        mydata['Temp4'] = data[2]     #databuffer[3]
+        mydata['HotFlow'] = data[4]   #databuffer[4]
+        mydata['ColdFlow'] = data[5]  #databuffer[5]
         mydata['PumpSpeed'] = data[6]
         mydata['PumpStatus'] = getbit(data[7],0)
         mydata['HeaterStatus'] = getbit(data[7],1)
         mydata['ArduinoMode'] = getbit(data[7],2)
         mydata['EmergencyMode'] = getbit(data[7],3)
         mydata['TimeStamp'] = timezone.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-
         #pegar o modo do arduino
         arduino_mode = mydata['ArduinoMode']
-        #lastvaliddata = mydata
+
         trenddata = dict([(x, mydata[x]) for x in ['Temp1', 'Temp2', 'Temp3','Temp4','HotFlow','ColdFlow','PumpSpeed','TimeStamp']])  
-        #lastvalidtrenddata = trenddata
         parseStatus = True
     else:
         mydata = 'error'
         trenddata = 'error'
         parseStatus = False
-        print('Parse False')
+        ReadingErrors = ReadingErrors + 1
+        print('Reading Errors: %d',ReadingErrors)
 
     return parseStatus, mydata, trenddata
+
+def SpikeFilter(data):
+    #filtro para temperatura
+    for i in range(0,3):
+        if(data[i] < 0):
+            SpikeErrors = SpikeErrors + 1
+        elif((abs(data[i] - 2*databuffer[i]) > 2) and (databuffer > 0)):
+            SpikeErrors = SpikeErrors + 1
+        else:  #dado normal
+            databuffer[i] = data[i]
+    
+    #filtro para a vazao quente
+    if(data[4]<0):
+        SpikeErrors = SpikeErrors + 1
+    elif(abs(databuffer[4] - data[4]) > 5) #spike
+        SpikeErrors = SpikeErrors + 1
+    else # normal
+        databuffer[4] = data[4]
+
+    if(data[5]<0):
+        SpikeErrors = SpikeErrors + 1
+    elif(abs(databuffer[5] - data[5]) > 4) #spike
+        SpikeErrors = SpikeErrors + 1
+    else # normal
+        databuffer[5] = data[5]
+    
+    #filtro para a vazao fria
 
 def process_commands(data):
     #necessário declarar como global, pois está alterando uma variavel dentro da thread
     global operation_mode 
     global allow_store_trend_data
 
-    #print(type(data))
+    #comandos de controle do gateway
     if(data == b'7'): #start TrendRegister
         allow_store_trend_data = 1
         obj = OperationMode.objects.latest('pk')
@@ -151,19 +195,13 @@ def process_commands(data):
 #classes para implmmentar o servidor assincrono
 class dataHandler(asyncore.dispatcher_with_send):
     
-    '''
-    def __init__(self,sock, addr,queue,server):
-        self.SERVER = server
-        self.queue = queue
-        self.sock = sock
-        self.CA = addr
-        self.DATA =''
-        self.out_buffer =''
-        asyncore.dispatcher.__init__(self,sock)
-    '''
+        def handle_read(self):
 
-    def handle_read(self):
+        #deve-se declarar como global porque está alterando variável de outra thread
+        global start_command_time
+        global result_command_time 
         
+        start_command_time = timeit.default__timer()
         data = self.recv(50)
 
         '''interpretar os comandos:
@@ -174,11 +212,13 @@ class dataHandler(asyncore.dispatcher_with_send):
         '''
         if len(data) < 2:  #comandos digitais
             process_commands(data)
+            result_command_time = timeit.default_timer()
         else: #comando analogico
             try:
                 ld = json.loads(data.decode('utf-8'))
                 bytescommand = pack('f',ld['pump_speed'])
                 bus.write_block_data(arduinoAddress,53,list(bytescommand))
+                result_command_time = timeit.default_timer()
                 #print(list(bytescommand))
             except Exception as err:
                 print(str(err))
@@ -204,37 +244,31 @@ class Server(asyncore.dispatcher):
             #print('Incoming connection from %s' %repr(addr))
             handler = dataHandler(sock)
 
-#classe para implementar a função principal
-
 def tcpserver(queue):
     server = Server('localhost',8080)
     asyncore.loop()
 
-def mainloop(stime,ftime,ttime):
-    prevmillis = stime
-    prevmillis2 = ftime
-    prevmillis3 = ttime
+#função principal
+def mainloop(initialtime):
+    prevmillis = initialtime
+    prevmillis2 = initialtime
+    prevmillis3 = initialtime
     while True:
         try:
             currentmillis2 = millis()
 
-            '''
-            if(queue.empty):
-                pass
-                #print('vazio')
-            else:
-                print('passou')
-                operation_mode = queue.get()
-            '''
             if(currentmillis2 - prevmillis2 > readinterval):
                 #faz requisicao pelos dados
                 #print(operation_mode)
+
+                start_read_time = timeit.default_timer()
                 block = bus.read_i2c_block_data(arduinoAddress,54,30)
                 #efetua parse dos dados
                 #print(block)
                 data = unpack('7f2b',bytes(block))
                 #print(data)
                 bstatus, data, trendata = parseData(data)
+                result_read_time = timeit.default_timer - start_read_time
                 if(bstatus):
                         lastdata = data
                         lasttrenddata = trendata
@@ -242,36 +276,35 @@ def mainloop(stime,ftime,ttime):
                 prevmillis2 = currentmillis2
 
         except Exception as err:
-            print(str(err))
-
-        else:
-            '''
-            aqui deve-se processar os dados e enviar os comandos caso esteja em 
-            modo automatico
-            '''             
+            print(str(err))            
         finally:
             currentmillis = millis()
             if(currentmillis - prevmillis > sendDBinterval):
                 #envia dado para o banco de dados (lastdata contém últimos dados válidos)
+                start_store1_time = timeit.default__timer()
                 reg = Registers(**lastdata)
                 reg.save()
+                result_store1_time = timeit.default__timer() -start_store1_time
                 
                 #proxima execução
                 prevmillis = currentmillis
             
             currentmillis3 = millis()
-            if(currentmillis3 - prevmillis3 > sendTrendDBinterval): 
+            if(currentmillis3 - prevmillis3 > sendTrendDBinterval):
+                
                 if(allow_store_trend_data):
                     #envia dado para o banco de dados
+                    start_store2_time = timeit.default__timer()
                     treg = TrendRegister(**lasttrenddata)
                     treg.save()
+                    result_store2_time = timeit.default__timer() - start_store2_time
                     
                     #próxima execução
                     prevmillis3 = currentmillis3
                 else:
                     pass
 
-#inicia servidor assincrono
+#configura servidor assíncrono
 server = Server('localhost', 8080)
 loop_thread = threading.Thread(target=asyncore.loop, name='AsyncoreLoop')
 
@@ -298,41 +331,17 @@ if __name__=='__main__':
     bus = SMBus(1)
     arduinoAddress = 12
 
-    initialize()
+    initialize()  #inicializa estrutura de armazenamento de dados
 
-    prevmillis= millis()       #contador para solicitação de dados para o arduino
-    prevmillis2 = prevmillis   #contador para envio do banco
-
-    loop_thread.daemon = True
+    #inicia servidor TCP assincrono em outra thread
+    loop_thread.daemon = True  
     loop_thread.start()
     
-
     strstatus = 'Servidor rodando'
     print(strstatus)
 
     #loop principal
-    mainloop(prevmillis,prevmillis2,prevmillis)
-
-
-    #abordagem multi processing
-    '''
-    #cria uma queue para compartilhar variávies do processo
-
-    queue = Queue()
-    p1 = Process(target=tcpserver,args=(queue,))
-    p1.start()
-    p2 = Process(target=mainloop,args=(prevmillis,prevmillis2,queue,))
-    p2.start()
-    '''
-    
-    '''
-    manager = Manager()
-    q  = manager.Queue
-    pool = Pool()
-    p1 = pool.apply_async(tcpserver,args=(q,))
-    p2 = pool.apply_async(mainloop,args=(prevmillis,prevmillis2,q,))
-    '''
-
+    mainloop(millis())
  
     
 
