@@ -46,7 +46,7 @@ lastdata = {}
 lasttrenddata = {}
 lastvaliddata = {}
 lastvalidtrenddata = {}
-databuffer = [0] * 6
+databuffer = [0] * 7
 
 #informação se é para gravar dados do trend
 allow_store_trend_data = 0
@@ -54,9 +54,6 @@ allow_store_trend_data = 0
 #bytechecksum para confirmação
 chksum = 15
 
-#variável para armazenar o númmero de erros de leitura
-ReadingErrors = 0
-SpikeErrors = 0
 
 #funções auxiliares
 def initialize():
@@ -86,15 +83,17 @@ def parseData(data):
     
     if data[8] == 27:
         global ReadingErrors
+        global lastdata
+        global lasttrenddata
         #Filtrar Spikes
-        #SpikeFilter(data)
+        SpikeFilter(data)
 
-        mydata['Temp1'] = data[0]     #databuffer[0]
-        mydata['Temp2'] = data[1]     #databuffer[1]  
-        mydata['Temp3'] = data[3]     #databuffer[2]
-        mydata['Temp4'] = data[2]     #databuffer[3]
-        mydata['HotFlow'] = data[4]   #databuffer[4]
-        mydata['ColdFlow'] = data[5]  #databuffer[5]
+        mydata['Temp1'] = databuffer[0]     #databuffer[0]
+        mydata['Temp2'] = databuffer[1]     #databuffer[1]  
+        mydata['Temp3'] = databuffer[3]     #databuffer[2]
+        mydata['Temp4'] = databuffer[2]     #databuffer[3]
+        mydata['HotFlow'] = databuffer[4]   #databuffer[4]
+        mydata['ColdFlow'] = databuffer[5]  #databuffer[5]
         mydata['PumpSpeed'] = data[6]
         mydata['PumpStatus'] = getbit(data[7],0)
         mydata['HeaterStatus'] = getbit(data[7],1)
@@ -117,26 +116,34 @@ def parseData(data):
 
 def SpikeFilter(data):
     #filtro para temperatura
-    for i in range(0,3):
-        if(data[i] < 0):
+    global SpikeErrors
+    
+    for i in range(0,4):
+        if(data[i] < 0.0):
             SpikeErrors = SpikeErrors + 1
-        elif((abs(data[i] - 2*databuffer[i]) > 2) and (databuffer > 0)):
+            print('Erro de Temp: novo %f -antigo %f' %(data[i],databuffer[i]))
+        elif((abs(data[i] - databuffer[i]) > 10) and (databuffer[i] != 0)):
             SpikeErrors = SpikeErrors + 1
+            print('Erro de Temp: novo %f -antigo %f' %(data[i],databuffer[i]))
         else:  #dado normal
             databuffer[i] = data[i]
     
     #filtro para a vazao quente
-    if(data[4]<0):
+    if(data[4]<0.0):
         SpikeErrors = SpikeErrors + 1
-    elif(abs(databuffer[4] - data[4]) > 5): #spike
+        print('Erro de Vazão Quente: novo %f -antigo %f' %(data[4],databuffer[4]))
+    elif((abs(databuffer[4] - data[4]) > 20) and (databuffer[4] > 0)): #spike
         SpikeErrors = SpikeErrors + 1
+        print('Erro de Vazao Quente novo %f - antigo %f' %(data[4],databuffer[4]))
     else: # normal
         databuffer[4] = data[4]
 
-    if(data[5]<0):
+    if(data[5]<0.0):
         SpikeErrors = SpikeErrors + 1
-    elif(abs(databuffer[5] - data[5]) > 4): #spike
+        print('Erro de Vazao Fira: novo %f - antigo %f' %(data[5],databuffer[5]))
+    elif((abs(databuffer[5] - data[5]) > 8) and (databuffer[5] > 0)): #spike
         SpikeErrors = SpikeErrors + 1
+        print('Erro de Vazao Fira: novo %f - antigo %f' %(data[5],databuffer[5]))
     else: # normal
         databuffer[5] = data[5]
     
@@ -219,7 +226,6 @@ class dataHandler(asyncore.dispatcher_with_send):
                 bytescommand = pack('f',ld['pump_speed'])
                 bus.write_block_data(arduinoAddress,53,list(bytescommand))
                 result_command_time = timeit.default_timer() - start_command_time
-                print(result_command_time)
                 #print(list(bytescommand))
             except Exception as err:
                 print(str(err))
@@ -302,7 +308,7 @@ def mainloop(initialtime):
                     treg = TrendRegister(**lasttrenddata)
                     treg.save()
                     result_store2_time = timeit.default_timer() - start_store2_time
-                    print(result_command_time)
+                    #print(result_command_time)
                     #próxima execução
                     prevmillis3 = currentmillis3
                 else:
@@ -325,6 +331,10 @@ if __name__=='__main__':
     else:
         raise
         sys.exit(1)
+    
+    #variável para armazenar o númmero de erros de leitura
+    ReadingErrors = 0
+    SpikeErrors = 0
 
     #o armazenamento de dados de trend sempre começa desabilitado
     opMode = OperationMode.objects.latest('pk')

@@ -30,7 +30,7 @@ def main(request):
 
 def refresh(request):
 
-    if request.is_ajax():
+    #if request.is_ajax():
         reg = Registers.objects.latest('pk')
         opmode = OperationMode.objects.latest('pk')
         opdata = reg.serialize()
@@ -38,9 +38,10 @@ def refresh(request):
         opdata['TrendStarted'] = opmode.TrendStarted
         return JsonResponse(opdata,safe=False)
 
+
 @csrf_exempt
 def command(request):
-    if request.is_ajax():
+    #if request.is_ajax():
         c.s.sendall(request.POST.get('command').encode('utf-8'))
         msg = 'Sucesso'
         return JsonResponse(msg,safe=False)
