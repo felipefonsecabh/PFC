@@ -5,7 +5,6 @@
 <!--arquivos css necessários para abertura da página-->
 {% block css %}
     <link rel="stylesheet" href="{% static "css/bootstrap-slider.min.css" %}">
-    <link rel="stylesheet" href="{% static "css/epoch.min.css" %}">
 {% endblock css %}
 
 {% block content %}
@@ -17,7 +16,7 @@
                 <center>
                     <div class="col-xs-6">
                         <h2>
-                            <span class="text-center" style="font-size:14px;">Arduino Mode</span>
+                            <span class="text-center" style="font-size:14px;">Modo Arduino</span>
                             <span id="arduino-mode" class="label {% if reg.EmergencyMode %} label-danger {% else %} {% if reg.ArduinoMode %}label-info {% else %} label-info {% endif %} {% endif %}">
                                 {% if reg.EmergencyMode %} Emergência {% else %} {% if reg.ArduinoMode %}Remoto {% else %} Local {% endif %} {% endif %}</span>
                         </h2>
@@ -34,7 +33,7 @@
             </div>
 
                 <div class="dropdown pull-right">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Actions
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Opções
                         <span class="caret"></span></button>
                         <ul class="dropdown-menu">
                             <!-- <li><a type="button" id="set-manual" class="btn btn-default actions modeactions {% if reg.ArduinoMode == 0 or op.OpMode == True %} disabled {% endif %}" data-toggle="confirmation" data-placement="left" data-action='A'> Set Manual</a></li>
@@ -124,8 +123,7 @@
                     <div class="panel-body">
                         <!--display-->
                         <center>
-                            <!--ideia do toggle abortada por enquanto-->
-                            <!--<input type="checkbox" checked data-toggle="toggle">-->
+                            <!--display que indica o status da bomba -->
                             <h1><span class="label {% if reg.PumpStatus %}label-on {% else %} label-off {% endif %} text-center" id="ps" >{% if reg.PumpStatus %}ON {% else %} OFF {% endif %}</span><h1>
 
                             <!--comando-->
@@ -154,21 +152,12 @@
                     <div class="panel-body">
                         <!--display-->
                         <center>
-                            <!--ideia do toggle abortada por enquanto-->
-                            <!--<input type="checkbox" checked data-toggle="toggle">-->
+                            <!-- display que indica o status do aquecedor -->
                             <h1><span class="label {% if reg.HeaterStatus %}label-on {% else %} label-off {% endif %} text-center" id="hs">{% if reg.HeaterStatus %}ON{% else %}OFF{% endif %}</span><h1>
 
                             <!--comando-->
                             <button class="btn btn-primary commandbutton {% if reg.ArduinoMode == 0 or op.OpMode == 0 %} disabled {% endif %}" id="heateron" data-target="3">Ligar</button>
                             <button class="btn btn-primary commandbutton {% if reg.ArduinoMode == 0 or op.OpMode == 0 %} disabled {% endif %}" id="heateroff" data-target="4">Desligar</button>                 
-
-                            <!--slider-->
-                            <!--
-                            <div>
-                                <input class="slidercmd" id="sp_heater" type="text" data-provide="slider" data-slider-min="0" data-slider-max="100" data-slider-step="1" 
-                                data-slider-enabled="{%if reg.ArduinoMode == 0 or op.OpMode == 0 %} false {% else %} true {% endif %}" data-slider-value="{{reg.getintspeed}}"/>
-                            </div>
-                            -->
 
                         </center>
                     </div>

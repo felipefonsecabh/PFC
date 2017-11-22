@@ -15,7 +15,7 @@ try:
 except Exception as err:
     print(str(err))
 
-# Create your views here.
+#view para a tela operação. Busca o último dado no banco, insere ao template e envia para requisitante
 def main(request):
     dp_col = DataDisplay.objects.all()
     #print(dp_col[0].name)
@@ -28,9 +28,10 @@ def main(request):
     }
     return render(request,'operation.html',context)
 
+#view para atualizar a tela, é retornado apenas um objeto Json com os dados relativos à última linha do banco.
 def refresh(request):
 
-    #if request.is_ajax():
+    if request.is_ajax():
         reg = Registers.objects.latest('pk')
         opmode = OperationMode.objects.latest('pk')
         opdata = reg.serialize()
@@ -39,13 +40,15 @@ def refresh(request):
         return JsonResponse(opdata,safe=False)
 
 
+#view para enviar um comando para o gateway. É enviado apenas um caractere por um cliente TCP.
 @csrf_exempt
 def command(request):
-    #if request.is_ajax():
+    if request.is_ajax():
         c.s.sendall(request.POST.get('command').encode('utf-8'))
         msg = 'Sucesso'
         return JsonResponse(msg,safe=False)
 
+#view para enviar um comando analógico para o gateway. É enviado um pacote Json por um cliente TCP
 @csrf_exempt
 def analogcommand(request):
     if request.is_ajax():
@@ -76,6 +79,7 @@ def download_csv(modeladmin, request, queryset):
         return response
         download_csv.short_description = "Download selected as csv"
 
+#view para enviar para o cliente um arquivo csv com o conteúdo da tabela TrendRegister
 def exportcsv(request):
     reg = TrendRegister.objects.all()
     data  = download_csv(TrendRegisterAdmin,request,reg)

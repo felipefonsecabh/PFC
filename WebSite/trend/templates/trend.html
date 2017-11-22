@@ -4,32 +4,12 @@
 
 <!--arquivos css para abertura da página-->
 {% block css %}
-    <link rel="stylesheet" href="{% static "css/epoch.min.css" %}">
+    <!--por enquanto sem css para a página -->
 {% endblock css %}
 
 {% block content %}
     <div class="container">
-        <!--epoch-->
-        <!--
-        <div class="row">
-            <div class="col-md-12">
-                <div id="area" class="epoch category10" style="height: 200px;"></div>
-                <button class="btn btn-primary" id="rf">Refresh</button>
-            </div>
-        </div>
-        -->
-
-        <!--plotly-->
-        <!--
-        <div class="row">
-            <div class="col-md-12">
-                <div id="chart"></div>
-            </div>
-        </div>-->
-
         <!--smoothie-->
-    
-        
         <div class='container-fluid' style='margin-bottom:20px;'>
             <div class='legend'>
                 <span style='color: #900c3f; margin-right:10px;'>&#x25A0; TempA</span>
@@ -48,15 +28,15 @@
 
         <div class='container-fluid' style='margin-bottom:20px;'>
             <div class='legend'>
-                <span style='color: #2f4727; margin-right:10px;'>&#x25A0; HotFlow</span>
-                <span style='color: #42df10;'>&#x25A0; ColdFlow</span>
+                <span style='color: #2f4727; margin-right:10px;'>&#x25A0; Vazão de Água Quente</span>
+                <span style='color: #42df10;'>&#x25A0; Vazão de Água Fria</span>
             </div>
             <canvas id="chartflows" width="700" height="400"></canvas>
         </div>
 
         <div class='container-fluid'>
             <div class='legend'>
-                <span style='color: #142463;'>&#x25A0; PumpSpeed</span>
+                <span style='color: #142463;'>&#x25A0; Velocidade da Bomba</span>
             </div>
             <canvas id="chartspeed" width="700" height="400"></canvas>
         </div>
@@ -65,12 +45,6 @@
 {% endblock content %}
 
 {% block js %}
-    <script src="{% static "js/d3-v3.min.js" %}"></script>
-    <!--O epoch não está funcionando com a última versão do d3 (v4)
-    <script src="http://d3js.org/d3.v4.min.js" charset='utf-8'></script>-->
-    <script src="{% static "js/epoch.min.js" %}"></script>
-    <script src="{% static "js/plotly-latest.min.js" %}"></script>
     <script src="{% static "js/smoothie.js" %}"></script>
     <script src="{% static "js/trend.js" %}"></script>
-
 {% endblock js %}
