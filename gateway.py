@@ -261,10 +261,9 @@ def mainloop(initialtime):
             currentmillis = millis()
             if(currentmillis - prevmillis > sendDBinterval):
                 #envia dado para o banco de dados (lastdata contém últimos dados válidos)
-                lastreg = Registers.objects.latest('pk')
                 reg = Registers(**lastdata)
-                reg = lastreg
                 reg.save()
+            
                 #proxima execução
                 prevmillis = currentmillis
             
@@ -302,6 +301,7 @@ if __name__=='__main__':
     #apagar os dados do banco trend sempre que incializar
     try:
         tdata = TrendRegister.objects.all().delete()
+        rdata = Registers.objects.all().delete()
     except Exception as err:
         print(str(err))
 

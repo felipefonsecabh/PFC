@@ -38,10 +38,10 @@
                         <ul class="dropdown-menu">
                             <!-- <li><a type="button" id="set-manual" class="btn btn-default actions modeactions {% if reg.ArduinoMode == 0 or op.OpMode == True %} disabled {% endif %}" data-toggle="confirmation" data-placement="left" data-action='A'> Set Manual</a></li>
                             <li><a type="button" id="set-auto" class="btn btn-default actions modeactions {% if reg.ArduinoMode == 0 or op.OpMode == False %} disabled {% endif %}" data-toggle="confirmation" data-placement="left" data-action="B"> Set Automatic</a></li>-->
-                            <li><a type="button" id="start-trend" class="btn btn-default actions {% if op.TrendStarted %} disabled {% endif %}" data-toggle="confirmation"  data-placement="left" data-action="7"> Start Store Data </a></li>
-                            <li><a type="button" id="stop-trend" class="btn btn-default actions {% if not op.TrendStarted %} disabled {% endif %}" data-toggle="confirmation"  data-placement="left" data-action="8"> Stop Store Data</a></li>
-                            <li><a type="button" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="9"> Clear Store Data</a></li>
-                            <li><a type="button" href="{% url 'op:exportcsv' %}" id="export-csv" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="C"> Export CSV </a></li>
+                            <li><a type="button" id="start-trend" class="btn btn-default actions {% if op.TrendStarted %} disabled {% endif %}" data-toggle="confirmation"  data-placement="left" data-action="7"> Iniciar Armazenamento Histórico </a></li>
+                            <li><a type="button" id="stop-trend" class="btn btn-default actions {% if not op.TrendStarted %} disabled {% endif %}" data-toggle="confirmation"  data-placement="left" data-action="8"> Pausar Armazenamento Histórico</a></li>
+                            <li><a type="button" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="9"> Apagar Histórico</a></li>
+                            <li><a type="button" href="{% url 'op:exportcsv' %}" id="export-csv" class="btn btn-default actions" data-toggle="confirmation" data-placement="left" data-action="C"> Exportar Dados p/ CSV </a></li>
                         </ul>
                 </div>
         </div>
@@ -116,7 +116,7 @@
         <div class="row">
             <div class 'col-md-12 colxs-12'>
                 <h4 class="text-center">
-                    <span>Atualizado em: &nbsp; {{reg.TimStamp|date:"d/m/Y H:i:s:u"}}</span>
+                    <span>Atualizado em: &nbsp;</span><span id="TimeStamp">{{reg.TimeStamp}}</span>
                 </h4>
             </div>
         </div>

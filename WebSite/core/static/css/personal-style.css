@@ -100,7 +100,29 @@
   border: solid 1px red; 
 }
 
+.smoothie-chart-tooltip {
+  background: #f2f2f2;
+  padding: 1em;
+  margin-top: 20px;
+  font-family: consolas;
+  color: black;
+  font-size: 15px;
+  pointer-events: none;
+}
+
+
 @media screen and (max-width: 480px){
+
+  
+  .display-desc{
+    font-size: 12px;
+  }
+  .display-value{
+    font-size: 14px;
+  }
+  .display-unit{
+    font-size: 10px;
+  }
 
   .btn-responsive {
     white-space: normal !important;
@@ -120,22 +142,6 @@
 }
 
 }
-
-div.smoothie-chart-tooltip {
-  background: #444;
-  padding: 1em;
-  margin-top: 20px;
-  font-family: consolas;
-  color: white;
-  font-size: 10px;
-  pointer-events: none;
-}
-
-/*
-#schart{
-  border: solid 1px blue;  
-  width: 100%;
-}*/
 
 #g1 text:nth-child(6) tspan{
   font-size: 0.8em !important;  

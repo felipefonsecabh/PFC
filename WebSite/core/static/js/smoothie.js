@@ -356,7 +356,7 @@
     tooltip: false,
     tooltipLine: {
       lineWidth: 1,
-      strokeStyle: '#BBBBBB'
+      strokeStyle: '#f2f2f2'
     },
     tooltipFormatter: SmoothieChart.tooltipFormatter,
     responsive: false,

@@ -12,7 +12,12 @@ def main(request):
 
 def refresh(request):
     if request.is_ajax():
-        trend_reg = TrendRegister.objects.latest('pk')
-        trend_data = trend_reg.serialize()
-        return JsonResponse(trend_data,safe=False)
+        try:
+            trend_reg = TrendRegister.objects.latest('pk')
+            trend_data = trend_reg.serialize()
+        except Exception as err:
+            trend_data = None
+            print(str(err))
+        finally:
+            return JsonResponse(trend_data,safe=False)
     

@@ -10,10 +10,12 @@ from WebSite.core.tcpclient import Client
 from django.core.exceptions import PermissionDenied
 import csv
 
+'''
 try:
     c = Client()
 except Exception as err:
     print(str(err))
+'''
 
 #view para a tela operação. Busca o último dado no banco, insere ao template e envia para requisitante
 def main(request):
@@ -44,9 +46,15 @@ def refresh(request):
 @csrf_exempt
 def command(request):
     if request.is_ajax():
-        c.s.sendall(request.POST.get('command').encode('utf-8'))
-        msg = 'Sucesso'
-        return JsonResponse(msg,safe=False)
+        try:
+            c = Client()
+            c.s.sendall(request.POST.get('command').encode('utf-8'))
+            c.s.close()
+        except Exception as err:
+            print(str(err))
+        finally:
+            msg = 'Sucesso'
+            return JsonResponse(msg,safe=False)
 
 #view para enviar um comando analógico para o gateway. É enviado um pacote Json por um cliente TCP
 @csrf_exempt
@@ -54,9 +62,15 @@ def analogcommand(request):
     if request.is_ajax():
         speed = request.POST.get('speed')
         jsoncmd  = '{"pump_speed": ' + speed +'}'
-        c.s.sendall(jsoncmd.encode('utf-8'))
-        msg = 'Sucesso'
-        return JsonResponse(msg,safe=False)
+        try:
+            c = Client()
+            c.s.sendall(jsoncmd.encode('utf-8'))
+            c.s.close()
+        except Exception as err:
+            print(str(err))
+        finally:
+            msg = 'Sucesso'
+            return JsonResponse(msg,safe=False)
 
 def download_csv(modeladmin, request, queryset):
         '''

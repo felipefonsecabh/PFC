@@ -4,7 +4,6 @@
 
 <!--arquivos css para abertura da página-->
 {% block css %}
-    <!--por enquanto sem css para a página -->
 {% endblock css %}
 
 {% block content %}
@@ -13,23 +12,27 @@
         <div class='container-fluid' style='margin-bottom:20px;'>
             <div class='legend'>
                 <span style='color: #900c3f; margin-right:10px;'>&#x25A0; TempA</span>
-                <span style='color: #ffc300;'>&#x25A0; TempB</span>
+                <span style='color: #213DEA;'>&#x25A0; TempB</span>
+                <span style='color: black;'> ----- Circuito de Água Quente</span>
             </div>
+            
             <canvas id="charttemp1" width="700" height="400"></canvas>
         </div>
 
         <div class='container-fluid' style='margin-bottom:20px;'>
             <div class='legend'>
-                <span style='color: #010c5b; margin-right:10px;'>&#x25A0; TempC</span>
-                <span style='color: #0fe5c2;'>&#x25A0; TempD</span>
+                <span style='color: #c88b51; margin-right:10px;'>&#x25A0; TempC</span>
+                <span style='color: #6F6185;'>&#x25A0; TempD</span>
+                <span style='color: black;'> ----- Circuito de Água Fria</span>
             </div>
+            
             <canvas id="charttemp2" width="700" height="400"></canvas>
         </div>
 
         <div class='container-fluid' style='margin-bottom:20px;'>
             <div class='legend'>
                 <span style='color: #2f4727; margin-right:10px;'>&#x25A0; Vazão de Água Quente</span>
-                <span style='color: #42df10;'>&#x25A0; Vazão de Água Fria</span>
+                <span style='color: #C4C211;'>&#x25A0; Vazão de Água Fria</span>
             </div>
             <canvas id="chartflows" width="700" height="400"></canvas>
         </div>

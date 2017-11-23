@@ -12,6 +12,8 @@ function refresh_function(gaugeChart){
 			$('#Vazao_Quente').text(data.HotFlow.toFixed(2).replace('.',','));
 			$('#Vazao_Fria').text(data.ColdFlow.toFixed(2).replace('.',','));
 
+			$('#TimeStamp').text(data.TimeStamp)
+
 			//atualizar os dados dos labels de modo de operação
 
 			//modo arduino local/remoto
